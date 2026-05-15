@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOLIO — Sign Up / Sign In</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#09090b;--surface:#111113;--surface-2:#17171a;--surface-3:#1e1e22;--border:rgba(255,255,255,0.07);--border-bright:rgba(255,255,255,0.13);--text-primary:#f4f1ec;--text-secondary:#8a8680;--text-muted:#3d3b39;--accent:#00ff87;--accent-dim:rgba(0,255,135,0.09);--accent-text:#00cc6a;--gold:#c8a96e;--blue:#4488ff;--red:#ff4444;--font-display:'DM Serif Display',Georgia,serif;--font-ui:'Syne',sans-serif;--font-mono:'JetBrains Mono',monospace;--radius:6px;--radius-lg:12px;--radius-xl:18px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4;}
+
+/* LAYOUT */
+.auth-layout{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;}
+@media(max-width:820px){.auth-layout{grid-template-columns:1fr;}.auth-left{display:none;}}
+
+/* LEFT PANEL */
+.auth-left{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:3rem;}
+.auth-left-bg{position:absolute;inset:0;z-index:0;}
+.auth-left-video{width:100%;height:100%;object-fit:cover;opacity:0.18;}
+.auth-left-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(9,9,11,.85) 0%,rgba(9,9,11,.6) 100%);}
+.auth-left-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse 80% 70% at 40% 40%,black 0%,transparent 70%);}
+.auth-left-glow{position:absolute;bottom:-60px;left:-60px;width:380px;height:380px;background:radial-gradient(circle,rgba(0,255,135,.09) 0%,transparent 65%);pointer-events:none;}
+.auth-left-top{position:relative;z-index:1;}
+.auth-logo{display:flex;align-items:center;gap:9px;text-decoration:none;margin-bottom:3.5rem;}
+.logo-mark{width:28px;height:28px;background:var(--accent);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#000;}
+.logo-text{font-family:var(--font-mono);font-size:15px;font-weight:500;color:var(--text-primary);}
+.left-tagline{font-family:var(--font-display);font-size:clamp(2.2rem,3.5vw,3rem);font-weight:400;line-height:1.12;letter-spacing:-.025em;color:var(--text-primary);}
+.left-tagline em{font-style:italic;color:var(--accent);}
+.left-sub{font-size:14px;color:var(--text-secondary);line-height:1.7;margin-top:1rem;max-width:360px;}
+.auth-left-bottom{position:relative;z-index:1;}
+.testimonial{background:rgba(255,255,255,.04);border:1px solid var(--border-bright);border-radius:var(--radius-xl);padding:1.5rem;backdrop-filter:blur(10px);}
+.test-text{font-size:14px;color:var(--text-secondary);line-height:1.7;font-style:italic;margin-bottom:1rem;}
+.test-author{display:flex;align-items:center;gap:10px;}
+.test-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(0,255,135,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent-text);}
+.test-name{font-size:12px;font-weight:700;color:var(--text-primary);}
+.test-role{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);}
+.verified-chip{margin-left:auto;font-size:10px;font-family:var(--font-mono);color:var(--accent-text);background:var(--accent-dim);border:1px solid rgba(0,255,135,.15);padding:2px 9px;border-radius:100px;}
+
+/* RIGHT PANEL */
+.auth-right{display:flex;flex-direction:column;justify-content:center;padding:3rem 3.5rem;position:relative;z-index:1;overflow-y:auto;}
+@media(max-width:820px){.auth-right{padding:2rem 1.5rem;}}
+.auth-right-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3rem;}
+.auth-mobile-logo{display:none;align-items:center;gap:8px;font-family:var(--font-mono);font-size:14px;color:var(--text-primary);}
+@media(max-width:820px){.auth-mobile-logo{display:flex;}}
+.auth-switch-link{font-size:12px;font-family:var(--font-mono);color:var(--text-secondary);cursor:pointer;transition:color .12s;}
+.auth-switch-link:hover{color:var(--text-primary);}
+.auth-switch-link span{color:var(--accent-text);}
+
+/* BETA BADGE */
+.beta-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:100px;border:1px solid rgba(0,255,135,.2);background:rgba(0,255,135,.06);font-size:11px;font-family:var(--font-mono);color:var(--accent-text);margin-bottom:1.5rem;letter-spacing:.05em;}
+.beta-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.6);}}
+
+/* HEADING */
+.auth-heading{font-family:var(--font-display);font-size:clamp(2rem,4vw,2.8rem);font-weight:400;letter-spacing:-.025em;margin-bottom:.4rem;line-height:1.1;}
+.auth-subheading{font-size:14px;color:var(--text-secondary);margin-bottom:2rem;line-height:1.6;}
+
+/* STEPS indicator */
+.step-track{display:flex;align-items:center;gap:6px;margin-bottom:2rem;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--surface-3);transition:all .25s;}
+.step-dot.active{background:var(--accent);width:24px;border-radius:100px;}
+.step-dot.done{background:var(--accent-text);}
+
+/* OAUTH */
+.oauth-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.25rem;}
+.oauth-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;border-radius:var(--radius);border:1px solid var(--border-bright);background:var(--surface-2);color:var(--text-secondary);font-size:13px;font-weight:600;font-family:var(--font-ui);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.oauth-btn:hover{border-color:rgba(255,255,255,.22);color:var(--text-primary);background:var(--surface-3);}
+.oauth-btn svg{width:16px;height:16px;flex-shrink:0;}
+.oauth-btn.full-width{grid-column:1/-1;}
+.divider-row{display:flex;align-items:center;gap:1rem;margin:.75rem 0;}
+.divider-line{flex:1;height:1px;background:var(--border);}
+.divider-text{font-size:11px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;}
+
+/* FORM */
+.form-group{margin-bottom:1rem;}
+.form-label{display:block;font-size:10px;font-weight:700;font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:7px;}
+.form-label .optional{font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;}
+.form-input{width:100%;padding:11px 14px;background:var(--surface-2);border:1px solid var(--border-bright);border-radius:var(--radius);color:var(--text-primary);font-size:14px;font-family:var(--font-ui);outline:none;transition:all .15s;}
+.form-input::placeholder{color:var(--text-muted);}
+.form-input:focus{border-color:rgba(0,255,135,.38);background:var(--surface-3);box-shadow:0 0 0 3px rgba(0,255,135,.055);}
+.form-input.err{border-color:rgba(255,68,68,.45);}
+.form-error{font-size:11px;color:var(--red);margin-top:5px;font-family:var(--font-mono);display:none;}
+.form-error.show{display:block;}
+.form-hint{font-size:11px;color:var(--text-muted);margin-top:5px;font-family:var(--font-mono);line-height:1.5;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.pw-wrap{position:relative;}
+.pw-wrap .form-input{padding-right:44px;}
+.pw-eye{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;transition:color .12s;display:flex;align-items:center;}
+.pw-eye:hover{color:var(--text-secondary);}
+
+/* INVITE CODE */
+.invite-box{background:var(--surface-2);border:1px solid rgba(0,255,135,.12);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;}
+.invite-box-label{font-size:10px;font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent-text);margin-bottom:.75rem;display:flex;align-items:center;gap:7px;}
+.invite-box-label svg{width:12px;height:12px;}
+.invite-input{width:100%;padding:11px 14px;background:var(--surface-3);border:1px solid var(--border-bright);border-radius:var(--radius);color:var(--accent-text);font-size:15px;font-family:var(--font-mono);letter-spacing:.12em;text-transform:uppercase;outline:none;transition:all .15s;text-align:center;}
+.invite-input::placeholder{color:var(--text-muted);text-transform:none;letter-spacing:0;font-size:13px;}
+.invite-input:focus{border-color:rgba(0,255,135,.4);box-shadow:0 0 0 3px rgba(0,255,135,.06);}
+.invite-status{font-size:11px;font-family:var(--font-mono);margin-top:7px;min-height:16px;text-align:center;}
+.invite-status.valid{color:var(--accent-text);}
+.invite-status.invalid{color:var(--red);}
+.invite-status.checking{color:var(--text-muted);}
+.invite-note{font-size:12px;color:var(--text-muted);text-align:center;margin-top:.6rem;}
+.invite-note a{color:var(--accent-text);cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+
+/* PHONE STEP */
+.phone-flag{font-size:20px;margin-right:4px;}
+.phone-prefix{padding:11px 12px;background:var(--surface-3);border:1px solid var(--border-bright);border-right:none;border-radius:var(--radius) 0 0 var(--radius);font-family:var(--font-mono);font-size:14px;color:var(--text-secondary);display:flex;align-items:center;}
+.phone-row{display:flex;}
+.phone-row .form-input{border-radius:0 var(--radius) var(--radius) 0;}
+
+/* SUBMIT */
+.submit-btn{width:100%;padding:13px;background:var(--accent);border:1px solid var(--accent);border-radius:var(--radius);color:#000;font-size:14px;font-weight:700;font-family:var(--font-ui);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.5rem;}
+.submit-btn:hover:not(:disabled){background:#00e87a;box-shadow:0 4px 20px rgba(0,255,135,.28);transform:translateY(-1px);}
+.submit-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.spinner{width:16px;height:16px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:spin .65s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.submit-btn.loading .btn-label{display:none;}
+.submit-btn.loading .spinner{display:block;}
+.terms-note{font-size:11px;color:var(--text-muted);text-align:center;margin-top:.85rem;font-family:var(--font-mono);line-height:1.6;}
+.terms-note a{color:var(--text-secondary);}
+
+/* SUCCESS */
+.auth-success{display:none;text-align:center;padding:2rem 0;animation:fadeUp .4s ease;}
+.auth-success.show{display:block;}
+.success-icon{font-size:3rem;margin-bottom:1.25rem;}
+.success-title{font-family:var(--font-display);font-size:2rem;font-weight:400;margin-bottom:.5rem;}
+.success-msg{font-size:14px;color:var(--text-secondary);line-height:1.7;margin-bottom:2rem;max-width:340px;margin-left:auto;margin-right:auto;}
+.handle-reveal{font-family:var(--font-mono);font-size:1.1rem;color:var(--accent-text);background:var(--surface-2);border:1px solid rgba(0,255,135,.15);border-radius:var(--radius-lg);padding:.75rem 1.25rem;margin-bottom:1.5rem;display:inline-block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+/* FORM STEPS */
+.form-step{display:none;}
+.form-step.active{display:block;}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-3);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:10px 20px;font-size:12px;font-family:var(--font-mono);color:var(--text-primary);z-index:9999;display:flex;align-items:center;gap:8px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="auth-layout">
+
+  <!-- LEFT PANEL -->
+  <div class="auth-left">
+    <div class="auth-left-bg">
+      <video class="auth-left-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=900&q=60">
+        <source src="https://videos.pexels.com/video-files/4779980/4779980-uhd_2560_1440_25fps.mp4" type="video/mp4">
+      </video>
+      <div class="auth-left-overlay"></div>
+      <div class="auth-left-grid"></div>
+      <div class="auth-left-glow"></div>
+    </div>
+
+    <div class="auth-left-top">
+      <a class="auth-logo" href="index.html">
+        <div class="logo-mark">F</div>
+        <span class="logo-text">folio</span>
+      </a>
+      <div class="left-tagline">Your career,<br><em>structured.</em><br>Your story, yours.</div>
+      <p class="left-sub">Build a professional handle that lives at folio.so/@you — richer than a PDF, always current, free forever.</p>
+    </div>
+
+    <div class="auth-left-bottom">
+      <div class="testimonial">
+        <p class="test-text">"I sent a recruiter my FOLIO handle instead of a PDF attachment. They called me the same afternoon. It just hits different when your profile is alive and they can actually explore it."</p>
+        <div class="test-author">
+          <div class="test-avatar">JR</div>
+          <div>
+            <div class="test-name">Jordan R.</div>
+            <div class="test-role">@jordan-r · Software Engineer · Beta tester</div>
+          </div>
+          <div class="verified-chip">✦ Beta</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="auth-right">
+    <div class="auth-right-top">
+      <a class="auth-mobile-logo" href="index.html">
+        <div class="logo-mark">F</div>
+        folio
+      </a>
+      <div class="auth-switch-link" id="switch-link" onclick="toggleMode()">
+        Have an account? <span>Sign in</span>
+      </div>
+    </div>
+
+    <!-- MAIN AUTH FORM -->
+    <div id="auth-main">
+
+      <div class="beta-pill" id="beta-pill">
+        <div class="beta-dot"></div>
+        <span id="beta-pill-text">Closed Beta — Invite Required</span>
+      </div>
+
+      <h1 class="auth-heading" id="auth-heading">Create your vault.</h1>
+      <p class="auth-subheading" id="auth-subheading">Free forever. No credit card. Claim your handle in 60 seconds.</p>
+
+      <!-- Step indicator (signup only) -->
+      <div class="step-track" id="step-track">
+        <div class="step-dot active" id="sd-0"></div>
+        <div class="step-dot" id="sd-1"></div>
+        <div class="step-dot" id="sd-2"></div>
+      </div>
+
+      <!-- STEP 0: Invite code -->
+      <div class="form-step active" id="step-0">
+        <div class="invite-box">
+          <div class="invite-box-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="m3 8 9 6 9-6"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg>
+            Beta Invite Code
+          </div>
+          <input class="invite-input" id="invite-code" type="text" placeholder="FOLIO-XXXX" maxlength="20" oninput="checkInvite(this.value)">
+          <div class="invite-status" id="invite-status"></div>
+          <div class="invite-note">
+            Don't have a code? <a onclick="window.location.href='index.html#contact'">Request one from Mario →</a>
+            <br>Or try <strong style="color:var(--accent-text)">FOLIO-BETA</strong> for open beta access.
+          </div>
+        </div>
+        <button class="submit-btn" id="invite-next-btn" onclick="validateInvite()" disabled>
+          <span class="btn-label">Verify invite code</span>
+          <div class="spinner"></div>
+        </button>
+        <p class="terms-note">By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>. FOLIO is free forever for individuals.</p>
+      </div>
+
+      <!-- STEP 1: Account details -->
+      <div class="form-step" id="step-1">
+        <div class="oauth-grid">
+          <button class="oauth-btn" onclick="handleOAuth('Google')">
+            <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Google
+          </button>
+          <button class="oauth-btn" onclick="handleOAuth('Microsoft')">
+            <svg viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
+            Microsoft
+          </button>
+          <button class="oauth-btn" onclick="handleOAuth('GitHub')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </button>
+          <button class="oauth-btn" onclick="showPhoneStep()">
+            📱 Phone number
+          </button>
+        </div>
+
+        <div class="divider-row"><div class="divider-line"></div><div class="divider-text">or email</div><div class="divider-line"></div></div>
+
+        <div id="phone-step" style="display:none">
+          <div class="form-group">
+            <label class="form-label">Phone number</label>
+            <div class="phone-row">
+              <div class="phone-prefix"><span class="phone-flag">🇺🇸</span>+1</div>
+              <input class="form-input" id="phone-input" type="tel" placeholder="(555) 000-0000" oninput="formatPhone(this)">
+            </div>
+            <div class="form-hint">We'll send a 6-digit code to verify your number.</div>
+          </div>
+          <button class="submit-btn" onclick="sendPhoneCode()">
+            <span class="btn-label">Send verification code</span>
+            <div class="spinner"></div>
+          </button>
+          <div style="text-align:center;margin-top:.75rem;font-size:12px;font-family:var(--font-mono);color:var(--text-muted);cursor:pointer" onclick="hidePhoneStep()">← Use email instead</div>
+        </div>
+
+        <div id="email-fields">
+          <div class="form-row">
+            <div class="form-group" id="name-group">
+              <label class="form-label">Full name</label>
+              <input class="form-input" id="f-name" type="text" placeholder="Your name" autocomplete="name">
+              <div class="form-error" id="err-name">Required</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input class="form-input" id="f-email" type="email" placeholder="you@email.com" autocomplete="email">
+              <div class="form-error" id="err-email">Valid email required</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="pw-wrap">
+              <input class="form-input" id="f-pw" type="password" placeholder="8+ characters" autocomplete="new-password" style="padding-right:44px">
+              <button class="pw-eye" onclick="togglePw('f-pw','eye1')" type="button" id="eye1-btn">
+                <svg id="eye1-show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg id="eye1-hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <div class="form-error" id="err-pw">8+ characters required</div>
+          </div>
+          <button class="submit-btn" id="signup-btn" onclick="submitStep1()">
+            <span class="btn-label">Continue</span>
+            <div class="spinner"></div>
+          </button>
+          <p class="terms-note">Free forever — no credit card. Agree to <a href="#">Terms</a> &amp; <a href="#">Privacy</a>.</p>
+        </div>
+      </div>
+
+      <!-- STEP 2: Claim handle -->
+      <div class="form-step" id="step-2">
+        <h2 style="font-family:var(--font-display);font-size:1.8rem;font-weight:400;letter-spacing:-.02em;margin-bottom:.4rem;">Claim your<br>handle.</h2>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:1.5rem;">This is your permanent professional URL. Choose wisely — first impressions last.</p>
+        <div class="form-group">
+          <label class="form-label">Your handle</label>
+          <div style="display:flex;align-items:center;background:var(--surface-2);border:1px solid var(--border-bright);border-radius:var(--radius);overflow:hidden;transition:border-color .15s;" id="handle-row">
+            <div style="padding:11px 13px;font-family:var(--font-mono);font-size:14px;color:var(--text-muted);background:var(--surface-3);border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;">folio.so/</div>
+            <input style="flex:1;padding:11px 14px;background:transparent;border:none;color:var(--text-primary);font-family:var(--font-mono);font-size:14px;outline:none;" id="f-handle" type="text" placeholder="@yourname" maxlength="30" oninput="checkHandle(this.value)">
+          </div>
+          <div style="font-size:12px;font-family:var(--font-mono);margin-top:6px;min-height:18px;" id="handle-status"></div>
+        </div>
+        <div style="margin-bottom:1.25rem;">
+          <div style="font-size:11px;font-family:var(--font-mono);color:var(--text-muted);margin-bottom:8px;">Suggestions:</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;" id="handle-suggestions"></div>
+        </div>
+        <button class="submit-btn" id="handle-btn" onclick="claimHandle()" disabled>
+          <span class="btn-label">Claim @<span id="handle-preview">yourname</span></span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+
+    </div><!-- /auth-main -->
+
+    <!-- SUCCESS -->
+    <div class="auth-success" id="auth-success">
+      <div class="success-icon">✦</div>
+      <div class="success-title">You're in.</div>
+      <p class="success-msg">Your vault is initialized. Time to build the profile that replaces your resume.</p>
+      <div class="handle-reveal" id="success-handle">@yourname</div>
+      <button class="submit-btn" style="max-width:320px;margin:0 auto" onclick="goToDashboard()">
+        <span class="btn-label">Open my vault →</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+
+    <!-- LOGIN form -->
+    <div id="login-form" style="display:none">
+      <div class="beta-pill" style="border-color:rgba(68,136,255,.2);background:rgba(68,136,255,.06);color:#6aabff;">
+        <div class="beta-dot" style="background:var(--blue)"></div>
+        Beta — Your vault is waiting
+      </div>
+      <h1 class="auth-heading">Welcome back.</h1>
+      <p class="auth-subheading">Sign in to your vault.</p>
+      <div class="oauth-grid" style="margin-bottom:1.25rem">
+        <button class="oauth-btn" onclick="handleOAuth('Google')"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google</button>
+        <button class="oauth-btn" onclick="handleOAuth('Microsoft')"><svg viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>Microsoft</button>
+        <button class="oauth-btn" onclick="handleOAuth('GitHub')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>GitHub</button>
+        <button class="oauth-btn" onclick="showPhoneStep()">📱 Phone</button>
+      </div>
+      <div class="divider-row"><div class="divider-line"></div><div class="divider-text">or email</div><div class="divider-line"></div></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="l-email" type="email" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="l-pw" type="password" placeholder="Your password" style="padding-right:44px" autocomplete="current-password">
+          <button class="pw-eye" onclick="togglePw('l-pw','eye2')" type="button">
+            <svg id="eye2-show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="eye2-hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+      </div>
+      <div style="text-align:right;margin-top:-8px;margin-bottom:12px;font-size:12px;font-family:var(--font-mono);color:var(--accent-text);cursor:pointer">Forgot password?</div>
+      <button class="submit-btn" onclick="submitLogin()"><span class="btn-label">Sign in →</span><div class="spinner"></div></button>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
+
+<script>
+const VALID_CODES=['FOLIO-BETA','FOLIO-2025','FOLIO-TEST','MARIO-TEST','EARLY-ACCESS','LAUNCH-2025','BUILDER-1','BUILDER-2'];
+const TAKEN_HANDLES=new Set(['admin','api','support','discover','mario','sarah','john','jane','user','folio','help','me','about']);
+let currentMode='signup';
+let currentStep=0;
+let inviteVerified=false;
+let pendingHandle='';
+let inviteCheckTimer;
+let handleCheckTimer;
+
+/* MODE TOGGLE */
+function toggleMode(){
+  currentMode=currentMode==='signup'?'login':'signup';
+  document.getElementById('auth-main').style.display=currentMode==='signup'?'block':'none';
+  document.getElementById('login-form').style.display=currentMode==='login'?'block':'none';
+  document.getElementById('switch-link').innerHTML=currentMode==='signup'?'Have an account? <span>Sign in</span>':"Don't have an account? <span>Sign up free</span>";
+}
+
+/* STEP NAVIGATION */
+function goToStep(n){
+  document.querySelectorAll('.form-step').forEach((s,i)=>{s.classList.toggle('active',i===n);});
+  for(let i=0;i<3;i++){
+    const d=document.getElementById('sd-'+i);
+    d.classList.remove('active','done');
+    if(i===n)d.classList.add('active');
+    else if(i<n)d.classList.add('done');
+  }
+  currentStep=n;
+}
+
+/* INVITE CODE */
+function checkInvite(val){
+  const code=val.trim().toUpperCase();
+  clearTimeout(inviteCheckTimer);
+  const statusEl=document.getElementById('invite-status');
+  const btn=document.getElementById('invite-next-btn');
+  if(!code){statusEl.textContent='';statusEl.className='invite-status';btn.disabled=true;return;}
+  statusEl.textContent='Checking...';statusEl.className='invite-status checking';btn.disabled=true;
+  inviteCheckTimer=setTimeout(()=>{
+    if(VALID_CODES.includes(code)){
+      statusEl.textContent='✓ Valid invite code';statusEl.className='invite-status valid';
+      btn.disabled=false;inviteVerified=true;
+    }else{
+      statusEl.textContent='Code not recognized. Request one from Mario.';statusEl.className='invite-status invalid';
+      btn.disabled=true;inviteVerified=false;
+    }
+  },600);
+}
+
+function validateInvite(){
+  if(!inviteVerified){showToast('Please enter a valid invite code');return;}
+  setLoading('invite-next-btn',true);
+  setTimeout(()=>{setLoading('invite-next-btn',false);goToStep(1);},900);
+}
+
+/* OAUTH */
+function handleOAuth(p){
+  showToast(`${p} auth — live in production. Continuing as demo user...`);
+  setTimeout(()=>{
+    if(currentMode==='signup')goToStep(2);
+    else goToDashboard();
+  },1200);
+}
+
+/* PHONE */
+function showPhoneStep(){document.getElementById('phone-step').style.display='block';document.getElementById('email-fields').style.display='none';}
+function hidePhoneStep(){document.getElementById('phone-step').style.display='none';document.getElementById('email-fields').style.display='block';}
+function formatPhone(el){let v=el.value.replace(/\D/g,'');if(v.length>6)v=v.slice(0,3)+') '+v.slice(3,6)+'-'+v.slice(6,10);else if(v.length>3)v=v.slice(0,3)+') '+v.slice(3);if(el.value.length>1)el.value='('+v;}
+function sendPhoneCode(){setLoading('signup-btn',true);setTimeout(()=>{setLoading('signup-btn',false);showToast('SMS code sent — OTP flow live in production');goToStep(2);},1200);}
+
+/* STEP 1 EMAIL */
+function submitStep1(){
+  const name=document.getElementById('f-name').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const pw=document.getElementById('f-pw').value;
+  let ok=true;
+  clearErrors();
+  if(!name){showErr('f-name','err-name');ok=false;}
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('f-email','err-email');ok=false;}
+  if(pw.length<8){showErr('f-pw','err-pw');ok=false;}
+  if(!ok)return;
+  setLoading('signup-btn',true);
+  setTimeout(()=>{
+    setLoading('signup-btn',false);
+    const base=name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,20);
+    populateSuggestions(base);
+    document.getElementById('f-handle').value='@'+base;
+    checkHandle('@'+base);
+    goToStep(2);
+  },1100);
+}
+
+/* STEP 2 HANDLE */
+function checkHandle(raw){
+  const handle=raw.replace(/^@+/,'').toLowerCase().replace(/[^a-z0-9-]/g,'').replace(/-+/g,'-').replace(/^-|-$/g,'');
+  const input=document.getElementById('f-handle');
+  if(handle)input.value='@'+handle;
+  const preview=document.getElementById('handle-preview');
+  preview.textContent=handle||'yourname';
+  const status=document.getElementById('handle-status');
+  const btn=document.getElementById('handle-btn');
+  clearTimeout(handleCheckTimer);
+  if(handle.length<3){status.style.color='var(--red)';status.textContent=handle.length>0?'Min 3 characters':'';btn.disabled=true;return;}
+  status.style.color='var(--text-muted)';status.textContent='Checking...';btn.disabled=true;
+  handleCheckTimer=setTimeout(()=>{
+    pendingHandle=handle;
+    if(TAKEN_HANDLES.has(handle)){status.style.color='var(--red)';status.textContent=`@${handle} is taken`;btn.disabled=true;}
+    else{status.style.color='var(--accent-text)';status.textContent=`@${handle} is available ✦`;btn.disabled=false;}
+  },500);
+}
+
+function populateSuggestions(base){
+  const s=[base,base+'-dev',base+'-design',base+'-pro'].filter(x=>x.length>=3&&x.length<=25).slice(0,3);
+  document.getElementById('handle-suggestions').innerHTML=s.map(h=>`<button onclick="selectHandle('${h}')" style="font-family:var(--font-mono);font-size:11px;padding:4px 12px;border-radius:100px;border:1px solid var(--border-bright);background:var(--surface);color:var(--text-secondary);cursor:pointer;transition:all .12s;" onmouseover="this.style.borderColor='rgba(0,255,135,.3)';this.style.color='var(--accent-text)'" onmouseout="this.style.borderColor='var(--border-bright)';this.style.color='var(--text-secondary)'">@${h}</button>`).join('');
+}
+
+function selectHandle(h){document.getElementById('f-handle').value='@'+h;checkHandle('@'+h);}
+
+function claimHandle(){
+  if(!pendingHandle)return;
+  setLoading('handle-btn',true);
+  setTimeout(()=>{
+    TAKEN_HANDLES.add(pendingHandle);
+    document.getElementById('success-handle').textContent='@'+pendingHandle;
+    document.getElementById('auth-main').style.display='none';
+    document.getElementById('auth-success').classList.add('show');
+  },1100);
+}
+
+/* LOGIN */
+function submitLogin(){
+  const email=document.getElementById('l-email').value.trim();
+  const pw=document.getElementById('l-pw').value;
+  if(!email||pw.length<1){showToast('Please enter your email and password');return;}
+  const btn=document.querySelector('#login-form .submit-btn');
+  btn.disabled=true;btn.classList.add('loading');
+  setTimeout(()=>{btn.disabled=false;btn.classList.remove('loading');goToDashboard();},1200);
+}
+
+function goToDashboard(){
+  const btn=document.getElementById('auth-success')?.querySelector('.submit-btn');
+  if(btn){btn.disabled=true;btn.classList.add('loading');}
+  setTimeout(()=>window.location.href='dashboard.html',1000);
+}
+
+/* UTILITIES */
+function clearErrors(){['f-name','f-email','f-pw'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('err');});['err-name','err-email','err-pw'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});}
+function showErr(inputId,errId){const i=document.getElementById(inputId);const e=document.getElementById(errId);if(i)i.classList.add('err');if(e)e.classList.add('show');}
+function setLoading(btnId,loading){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.classList.toggle('loading',loading);}
+function togglePw(inputId,eyeId){const i=document.getElementById(inputId);const show=document.getElementById(eyeId+'-show');const hide=document.getElementById(eyeId+'-hide');if(i.type==='password'){i.type='text';if(show)show.style.display='none';if(hide)hide.style.display='block';}else{i.type='password';if(show)show.style.display='block';if(hide)hide.style.display='none';}}
+let toastTimer;
+function showToast(msg){document.getElementById('toast-msg').textContent=msg;document.getElementById('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>document.getElementById('toast').classList.remove('show'),3200);}
+
+/* ENTER KEY */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA'){
+    if(currentStep===0)validateInvite();
+    else if(currentStep===1)submitStep1();
+    else if(currentStep===2)claimHandle();
+    else if(currentMode==='login')submitLogin();
+  }
+});
+
+/* URL param: ?mode=login */
+const params=new URLSearchParams(window.location.search);
+if(params.get('mode')==='login')toggleMode();
+</script>
+</body>
+</html>

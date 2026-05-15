@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOLIO — Your Handle is Your Resume</title>
+<meta name="description" content="FOLIO replaces the resume PDF with a live professional handle. Built by Mario A. Espindola, MPA, IPMA-CP. Free forever for individuals. Now in beta.">
+<meta property="og:title" content="FOLIO — Your Handle is Your Resume">
+<meta property="og:description" content="One URL. Your whole career. AI-powered, open source, free forever.">
+<meta property="og:image" content="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #080808;
+  --paper: #09090b;
+  --surface: #111113;
+  --surface-2: #17171a;
+  --surface-3: #1e1e22;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,255,255,0.13);
+  --text-primary: #f4f1ec;
+  --text-secondary: #8a8680;
+  --text-muted: #3d3b39;
+  --accent: #00ff87;
+  --accent-dim: rgba(0,255,135,0.10);
+  --accent-text: #00cc6a;
+  --gold: #c8a96e;
+  --gold-dim: rgba(200,169,110,0.12);
+  --blue: #4488ff;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-ui: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 6px;
+  --radius-lg: 12px;
+  --radius-xl: 18px;
+  --max-w: 1140px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+/* ── NOISE ── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4;}
+
+/* ── BETA BANNER ── */
+.beta-banner{background:linear-gradient(90deg,rgba(0,255,135,0.08),rgba(68,136,255,0.08));border-bottom:1px solid rgba(0,255,135,0.15);padding:10px 2rem;text-align:center;font-size:12px;font-family:var(--font-mono);color:var(--text-secondary);letter-spacing:0.04em;position:relative;z-index:200;}
+.beta-banner strong{color:var(--accent-text);}
+.beta-banner a{color:var(--accent-text);text-decoration:underline;text-underline-offset:2px;cursor:pointer;}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:150;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;background:rgba(9,9,11,0.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer;}
+.logo-svg{width:32px;height:32px;}
+.logo-text{font-family:var(--font-mono);font-size:15px;font-weight:500;color:var(--text-primary);letter-spacing:0.03em;}
+.nav-links{display:flex;align-items:center;gap:6px;}
+.nav-link{font-size:13px;font-weight:500;color:var(--text-secondary);padding:6px 14px;border-radius:var(--radius);cursor:pointer;transition:all .12s;border:1px solid transparent;text-decoration:none;}
+.nav-link:hover{color:var(--text-primary);background:var(--surface);}
+.nav-btn{font-size:13px;font-weight:600;padding:8px 18px;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:all .15s;font-family:var(--font-ui);}
+.nav-btn.ghost{background:transparent;color:var(--text-secondary);border-color:var(--border-bright);}
+.nav-btn.ghost:hover{background:var(--surface);color:var(--text-primary);}
+.nav-btn.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
+.nav-btn.primary:hover{background:#00e87a;box-shadow:0 4px 20px rgba(0,255,135,.22);}
+@media(max-width:700px){.nav-links .nav-link{display:none;} .nav-btn.ghost{display:none;}}
+
+/* ── HERO (CINEMATIC) ── */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.hero-video-wrap{position:absolute;inset:0;z-index:0;}
+.hero-video{width:100%;height:100%;object-fit:cover;opacity:0.22;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,9,11,0.3) 0%,rgba(9,9,11,0.55) 50%,rgba(9,9,11,0.95) 100%);z-index:1;}
+.hero-content{position:relative;z-index:2;text-align:center;padding:8rem 2rem 5rem;max-width:860px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px 6px 10px;border-radius:100px;border:1px solid rgba(0,255,135,0.22);background:rgba(0,255,135,0.06);font-size:11px;font-family:var(--font-mono);color:var(--accent-text);margin-bottom:2.5rem;letter-spacing:0.05em;animation:fadeUp .6s ease both;}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.6);}}
+.hero h1{font-family:var(--font-display);font-size:clamp(3.2rem,8vw,7rem);font-weight:400;line-height:1.03;letter-spacing:-.025em;margin-bottom:1.5rem;animation:fadeUp .7s .1s ease both;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero-sub{font-size:clamp(1rem,2vw,1.25rem);color:var(--text-secondary);max-width:520px;margin:0 auto 3rem;line-height:1.7;animation:fadeUp .7s .2s ease both;}
+.hero-cta{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;animation:fadeUp .7s .35s ease both;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:13px 28px;border-radius:var(--radius-lg);border:1px solid transparent;font-size:14px;font-weight:700;font-family:var(--font-ui);cursor:pointer;transition:all .2s;letter-spacing:.02em;text-decoration:none;}
+.btn-primary{background:var(--accent);color:#000;border-color:var(--accent);}
+.btn-primary:hover{background:#00e87a;transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,255,135,.28);}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--text-secondary);border-color:var(--border-bright);backdrop-filter:blur(8px);}
+.btn-ghost:hover{background:rgba(255,255,255,.10);color:var(--text-primary);border-color:rgba(255,255,255,.22);}
+.hero-handle-demo{font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);background:rgba(255,255,255,.05);border:1px solid var(--border-bright);padding:8px 18px;border-radius:100px;display:inline-flex;align-items:center;gap:8px;margin-top:2.5rem;animation:fadeUp .7s .5s ease both;}
+.handle-accent{color:var(--accent);}
+.handle-cursor{width:2px;height:13px;background:var(--accent);display:inline-block;animation:blink 1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── SCROLL INDICATOR ── */
+.scroll-indicator{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:10px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:.08em;animation:fadeUp .7s .8s ease both;}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--accent-text),transparent);animation:scrollPulse 2s ease infinite;}
+@keyframes scrollPulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+
+/* ── SECTION WRAPPER ── */
+.section{padding:6rem 2rem;position:relative;z-index:1;}
+.section-inner{max-width:var(--max-w);margin:0 auto;}
+.section-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--accent-text);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.section-label::before{content:'//';color:var(--text-muted);}
+.section-title{font-family:var(--font-display);font-size:clamp(2rem,4vw,3.4rem);font-weight:400;letter-spacing:-.02em;line-height:1.1;margin-bottom:1rem;}
+.section-title em{font-style:italic;color:var(--accent);}
+.section-sub{font-size:15px;color:var(--text-secondary);max-width:540px;line-height:1.7;margin-bottom:3rem;}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border-bright),transparent);margin:0;}
+
+/* ── FEATURES ── */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;}
+@media(max-width:800px){.features-grid{grid-template-columns:1fr;}}
+.feature-cell{background:var(--surface);padding:2.5rem 2rem;position:relative;transition:background .15s;}
+.feature-cell:hover{background:var(--surface-2);}
+.feature-cell::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .3s;}
+.feature-cell:hover::before{opacity:.5;}
+.feature-icon{width:38px;height:38px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;font-size:18px;}
+.fi-green{background:var(--accent-dim);}
+.fi-blue{background:rgba(68,136,255,.08);}
+.fi-gold{background:var(--gold-dim);}
+.feature-title{font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:.5rem;letter-spacing:-.01em;}
+.feature-desc{font-size:13px;color:var(--text-secondary);line-height:1.65;}
+
+/* ── HOW IT WORKS ── */
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;}
+@media(max-width:800px){.steps-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.steps-grid{grid-template-columns:1fr;}}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:1.75rem 1.5rem;position:relative;}
+.step-num{font-family:var(--font-display);font-size:3rem;font-weight:400;color:var(--text-muted);line-height:1;margin-bottom:.75rem;}
+.step-title{font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:.4rem;}
+.step-desc{font-size:12px;color:var(--text-secondary);line-height:1.6;}
+.step-time{font-size:10px;font-family:var(--font-mono);color:var(--accent-text);margin-top:.75rem;letter-spacing:.05em;}
+
+/* ── MARQUEE ── */
+.marquee-wrap{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:1rem 0;background:var(--surface);}
+.marquee-track{display:flex;gap:2.5rem;animation:marquee 28s linear infinite;white-space:nowrap;}
+.marquee-item{font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;flex-shrink:0;display:flex;align-items:center;gap:1rem;}
+.marquee-item::after{content:'·';color:var(--accent);font-size:18px;}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;margin-bottom:5rem;}
+@media(max-width:600px){.stats-row{grid-template-columns:1fr;}}
+.stat-cell{background:var(--surface);padding:2.5rem 2rem;text-align:center;}
+.stat-num{font-family:var(--font-display);font-size:3.5rem;line-height:1;margin-bottom:.4rem;}
+.stat-num span{color:var(--accent);}
+.stat-label{font-size:12px;font-family:var(--font-mono);color:var(--text-secondary);letter-spacing:.05em;}
+
+/* ── ABOUT DEVELOPER ── */
+.about-grid{display:grid;grid-template-columns:1fr 2fr;gap:3rem;align-items:start;}
+@media(max-width:700px){.about-grid{grid-template-columns:1fr;}}
+.dev-avatar-wrap{position:relative;}
+.dev-avatar{width:100%;max-width:280px;aspect-ratio:1;border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--border-bright);position:relative;background:var(--surface-2);}
+.dev-avatar img{width:100%;height:100%;object-fit:cover;}
+.dev-avatar-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;font-weight:800;color:var(--accent-text);font-family:var(--font-display);background:linear-gradient(135deg,var(--surface-2),var(--surface-3));}
+.dev-badge{position:absolute;bottom:-12px;left:20px;background:var(--surface-3);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:8px 14px;font-size:11px;font-family:var(--font-mono);color:var(--text-secondary);}
+.dev-badge strong{color:var(--accent-text);}
+.about-content{}
+.dev-name{font-family:var(--font-display);font-size:2.2rem;font-weight:400;letter-spacing:-.02em;margin-bottom:.4rem;}
+.dev-credentials{font-size:13px;font-family:var(--font-mono);color:var(--accent-text);letter-spacing:.04em;margin-bottom:1.5rem;}
+.dev-bio{font-size:14px;color:var(--text-secondary);line-height:1.8;margin-bottom:1.5rem;}
+.dev-links{display:flex;gap:10px;flex-wrap:wrap;}
+.dev-link{font-size:12px;font-family:var(--font-mono);padding:6px 14px;border-radius:100px;border:1px solid var(--border-bright);color:var(--text-secondary);cursor:pointer;transition:all .12s;text-decoration:none;}
+.dev-link:hover{border-color:rgba(0,255,135,.3);color:var(--accent-text);}
+
+/* ── PROFILE DEMO CARDS ── */
+.profiles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:800px){.profiles-grid{grid-template-columns:1fr;}}
+.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:1.5rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.profile-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .3s;}
+.profile-card:hover{background:var(--surface-2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.5);}
+.profile-card:hover::after{opacity:.6;}
+.pc-handle{font-family:var(--font-mono);font-size:11px;color:var(--accent-text);margin-bottom:.75rem;letter-spacing:.05em;}
+.pc-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin-bottom:.75rem;}
+.pc-name{font-size:16px;font-weight:700;margin-bottom:2px;}
+.pc-title{font-size:12px;color:var(--text-secondary);font-family:var(--font-mono);margin-bottom:1rem;}
+.pc-skills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem;}
+.pc-skill{font-size:10px;font-family:var(--font-mono);padding:3px 9px;border-radius:100px;border:1px solid var(--border-bright);color:var(--text-muted);}
+.pc-status{display:flex;align-items:center;gap:6px;font-size:11px;font-family:var(--font-mono);color:var(--accent-text);}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+
+/* ── CONTACT & NEWSLETTER ── */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+@media(max-width:700px){.contact-grid{grid-template-columns:1fr;}}
+.contact-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem;}
+.contact-card h3{font-size:1.1rem;font-weight:700;margin-bottom:.4rem;}
+.contact-card p{font-size:13px;color:var(--text-secondary);line-height:1.65;margin-bottom:1.5rem;}
+.form-group{margin-bottom:1rem;}
+.form-label{display:block;font-size:10px;font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px;}
+.form-input,.form-textarea{width:100%;padding:10px 13px;background:var(--surface-2);border:1px solid var(--border-bright);border-radius:var(--radius);color:var(--text-primary);font-size:13px;font-family:var(--font-ui);outline:none;transition:border-color .15s;}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text-muted);}
+.form-input:focus,.form-textarea:focus{border-color:rgba(0,255,135,.35);}
+.form-textarea{resize:vertical;min-height:90px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.submit-btn{width:100%;padding:12px;background:var(--accent);border:none;border-radius:var(--radius);color:#000;font-size:13px;font-weight:700;font-family:var(--font-ui);cursor:pointer;transition:all .15s;margin-top:.25rem;}
+.submit-btn:hover{background:#00e87a;box-shadow:0 4px 16px rgba(0,255,135,.25);}
+.submit-btn.secondary{background:var(--surface-3);color:var(--text-primary);border:1px solid var(--border-bright);}
+.submit-btn.secondary:hover{background:var(--surface-2);box-shadow:none;}
+.success-msg{display:none;text-align:center;padding:1rem;font-family:var(--font-mono);font-size:13px;color:var(--accent-text);}
+.success-msg.show{display:block;}
+.form-inner.hidden{display:none;}
+
+/* ── DISCLAIMER / BETA BOX ── */
+.disclaimer-box{background:var(--surface);border:1px solid rgba(200,169,110,.15);border-radius:var(--radius-xl);padding:2rem;margin-bottom:3rem;}
+.disclaimer-title{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:.75rem;display:flex;align-items:center;gap:8px;}
+.disclaimer-body{font-size:12px;color:var(--text-secondary);line-height:1.75;}
+.disclaimer-body p{margin-bottom:.5rem;}
+.disclaimer-body p:last-child{margin-bottom:0;}
+
+/* ── CTA SECTION ── */
+.cta-section{padding:8rem 2rem;text-align:center;position:relative;overflow:hidden;}
+.cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(0,255,135,.06) 0%,transparent 70%);pointer-events:none;}
+.cta-section h2{font-family:var(--font-display);font-size:clamp(2.4rem,5vw,4.5rem);font-weight:400;letter-spacing:-.025em;margin-bottom:1rem;position:relative;}
+.cta-section h2 em{color:var(--accent);font-style:italic;}
+.cta-section p{font-size:1.05rem;color:var(--text-secondary);margin-bottom:2.5rem;max-width:480px;margin-left:auto;margin-right:auto;position:relative;}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:2.5rem 2rem;position:relative;z-index:1;}
+.footer-inner{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;}
+.footer-logo{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);}
+.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap;}
+.footer-links a{font-size:12px;font-family:var(--font-mono);color:var(--text-muted);text-decoration:none;transition:color .12s;}
+.footer-links a:hover{color:var(--text-secondary);}
+.footer-copy{font-size:11px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:.04em;}
+
+/* ── AUTH MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border-bright);border-radius:var(--radius-xl);width:100%;max-width:440px;box-shadow:0 32px 100px rgba(0,0,0,.8);transform:scale(.96) translateY(10px);transition:transform .25s cubic-bezier(.34,1.56,.64,1);overflow:hidden;}
+.modal-overlay.show .modal{transform:scale(1) translateY(0);}
+.modal-header{padding:1.75rem 1.75rem 0;}
+.modal-title{font-family:var(--font-display);font-size:1.8rem;font-weight:400;letter-spacing:-.02em;margin-bottom:.3rem;}
+.modal-sub{font-size:13px;color:var(--text-secondary);line-height:1.5;}
+.modal-close{position:absolute;top:1.25rem;right:1.25rem;width:30px;height:30px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .12s;}
+.modal-close:hover{background:var(--surface-2);color:var(--text-primary);}
+.modal-body{padding:1.5rem 1.75rem 1.75rem;}
+.oauth-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.25rem;}
+.oauth-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border-bright);background:var(--surface-2);color:var(--text-secondary);font-size:13px;font-weight:600;font-family:var(--font-ui);cursor:pointer;transition:all .15s;}
+.oauth-btn:hover{border-color:rgba(255,255,255,.22);color:var(--text-primary);background:var(--surface-3);}
+.oauth-btn svg{width:16px;height:16px;flex-shrink:0;}
+.oauth-btn.full{grid-column:1/-1;}
+.divider-row{display:flex;align-items:center;gap:1rem;margin:.75rem 0;}
+.divider-line{flex:1;height:1px;background:var(--border);}
+.divider-text{font-size:11px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;}
+.modal-toggle{font-size:12px;font-family:var(--font-mono);color:var(--text-muted);text-align:center;margin-top:1rem;cursor:pointer;}
+.modal-toggle span{color:var(--accent-text);}
+.pw-wrap{position:relative;}
+.pw-wrap .form-input{padding-right:42px;}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;transition:color .12s;}
+.pw-toggle:hover{color:var(--text-secondary);}
+.invite-note{font-size:11px;font-family:var(--font-mono);color:var(--text-muted);margin-top:5px;}
+.invite-note a{color:var(--accent-text);cursor:pointer;}
+.modal-success{display:none;text-align:center;padding:2rem;}
+.modal-success.show{display:block;}
+.modal-success-icon{font-size:2.5rem;margin-bottom:1rem;}
+.modal-success-title{font-family:var(--font-display);font-size:1.6rem;margin-bottom:.5rem;}
+.modal-success-msg{font-size:13px;color:var(--text-secondary);line-height:1.65;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-3);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:10px 20px;font-size:12px;font-family:var(--font-mono);color:var(--text-primary);z-index:9999;display:flex;align-items:center;gap:8px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+
+/* ── SCROLL FADE ── */
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- BETA BANNER -->
+<div class="beta-banner">
+  ⚡ <strong>FOLIO Beta</strong> — Now open for early testers. <a onclick="openAuth('signup')">Request access with an invite code →</a>
+  &nbsp;·&nbsp; All features free during beta. Data you enter is yours, always.
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="scrollTo(0,0)">
+    <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="7" fill="#00ff87"/>
+      <text x="16" y="22" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="16" fill="#000">F</text>
+    </svg>
+    <span class="logo-text">folio</span>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="#features">Features</a>
+    <a class="nav-link" href="#about">About</a>
+    <a class="nav-link" href="support.html">Support</a>
+    <a class="nav-link" href="#contact">Contact</a>
+    <button class="nav-btn ghost" onclick="openAuth('login')">Sign in</button>
+    <button class="nav-btn primary" onclick="openAuth('signup')">Get early access →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-video-wrap">
+    <!-- Cinematic BG: Pexels free stock video (cityscape / data / professional) -->
+    <video class="hero-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=60">
+      <source src="https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4" type="video/mp4">
+      <source src="https://videos.pexels.com/video-files/2278095/2278095-uhd_2560_1440_24fps.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="badge-dot"></div>
+      Open Beta · Free Forever · Open Source
+    </div>
+
+    <h1>Your handle<br>is your <em>resume.</em></h1>
+
+    <p class="hero-sub">
+      One URL. Your whole career. Richer than a PDF, smarter than a LinkedIn profile — and it's always yours.
+    </p>
+
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="openAuth('signup')">
+        Claim your handle — it's free
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <a class="btn btn-ghost" href="#features">See how it works</a>
+    </div>
+
+    <div class="hero-handle-demo">
+      folio.so/<span class="handle-accent" id="type-handle">@</span><span class="handle-cursor"></span>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">Vault</span><span class="marquee-item">Gap Analysis</span><span class="marquee-item">Resume Tailoring</span><span class="marquee-item">Cover Letters</span><span class="marquee-item">Interview Prep</span><span class="marquee-item">BLS Salary Data</span><span class="marquee-item">AI-Assisted</span><span class="marquee-item">Open Source</span><span class="marquee-item">Free Forever</span><span class="marquee-item">Handle Identity</span><span class="marquee-item">PDF Export</span><span class="marquee-item">Attestations</span>
+    <span class="marquee-item">Vault</span><span class="marquee-item">Gap Analysis</span><span class="marquee-item">Resume Tailoring</span><span class="marquee-item">Cover Letters</span><span class="marquee-item">Interview Prep</span><span class="marquee-item">BLS Salary Data</span><span class="marquee-item">AI-Assisted</span><span class="marquee-item">Open Source</span><span class="marquee-item">Free Forever</span><span class="marquee-item">Handle Identity</span><span class="marquee-item">PDF Export</span><span class="marquee-item">Attestations</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-label">What's Inside</div>
+    <h2 class="section-title">Everything you need.<br><em>Nothing you don't.</em></h2>
+    <p class="section-sub">The AI works for you, not at you. Features are hidden gems — discoverable when you need them.</p>
+    <div class="features-grid fade-in">
+      <div class="feature-cell">
+        <div class="feature-icon fi-green">🗄️</div>
+        <div class="feature-title">The Vault</div>
+        <div class="feature-desc">Every job, skill, credential, and project — structured, searchable, and always yours. The single source of truth for your career.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="feature-icon fi-blue">🎯</div>
+        <div class="feature-title">AI Gap Analysis</div>
+        <div class="feature-desc">Paste any job description. Get an honest match score, exact skill gaps, and a prioritized action plan in seconds.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="feature-icon fi-gold">📄</div>
+        <div class="feature-title">Tailored Resumes</div>
+        <div class="feature-desc">Generate an ATS-optimized, job-specific resume from your vault in one click. Every word traceable to a real accomplishment.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="feature-icon fi-green">💬</div>
+        <div class="feature-title">Vault Chatbot</div>
+        <div class="feature-desc">"I just got my AWS cert." Done. Add and edit vault records through conversation — the fastest way to stay current.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="feature-icon fi-blue">📊</div>
+        <div class="feature-title">BLS Market Data</div>
+        <div class="feature-desc">Real salary percentiles, job growth rates, and labor market trends — surfaced inline so you negotiate from facts, not feelings.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="feature-icon fi-gold">🔗</div>
+        <div class="feature-title">Your Handle</div>
+        <div class="feature-desc">folio.so/@you — one URL that replaces every resume attachment. Always live, always yours, always free.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">Zero to <em>live profile</em><br>in 8 minutes.</h2>
+    <div class="steps-grid fade-in">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Claim your handle</div>
+        <div class="step-desc">folio.so/@yourname — yours permanently. No credit card, no trial.</div>
+        <div class="step-time">~1 min</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Build your vault</div>
+        <div class="step-desc">Import from LinkedIn, upload a PDF, or chat with the AI to add records.</div>
+        <div class="step-time">~5 min</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Write your README</div>
+        <div class="step-desc">A few sentences in your own voice. The AI suggests structure; you write the words.</div>
+        <div class="step-time">~2 min</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-title">Share the link</div>
+        <div class="step-desc">Send folio.so/@you in your next application. The PDF era is over.</div>
+        <div class="step-time">Forever</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROFILES PREVIEW -->
+<section class="section" style="padding-top:0">
+  <div class="section-inner">
+    <div class="section-label">Live Profiles</div>
+    <h2 class="section-title">Real profiles.<br><em>Real people.</em></h2>
+    <div class="profiles-grid fade-in">
+      <div class="profile-card" onclick="showToast('Opening @sarah-kim...')">
+        <div class="pc-handle">folio.so/@sarah-kim</div>
+        <div class="pc-avatar" style="background:rgba(0,130,255,.12);color:#4488ff">SK</div>
+        <div class="pc-name">Sarah Kim</div>
+        <div class="pc-title">Principal Product Designer · NY</div>
+        <div class="pc-skills"><span class="pc-skill">Figma</span><span class="pc-skill">Design Systems</span><span class="pc-skill">TypeScript</span></div>
+        <div class="pc-status"><div class="status-dot"></div>Open to work</div>
+      </div>
+      <div class="profile-card" onclick="showToast('Opening @marcus-dev...')">
+        <div class="pc-handle">folio.so/@marcus-dev</div>
+        <div class="pc-avatar" style="background:rgba(0,255,135,.10);color:var(--accent-text)">MD</div>
+        <div class="pc-name">Marcus Diallo</div>
+        <div class="pc-title">Senior Software Engineer · Remote</div>
+        <div class="pc-skills"><span class="pc-skill">Rust</span><span class="pc-skill">Kubernetes</span><span class="pc-skill">Go</span></div>
+        <div class="pc-status"><div class="status-dot"></div>Open to work</div>
+      </div>
+      <div class="profile-card" onclick="showToast('Opening @destiny-m...')">
+        <div class="pc-handle">folio.so/@destiny-m</div>
+        <div class="pc-avatar" style="background:rgba(200,169,110,.12);color:var(--gold)">DM</div>
+        <div class="pc-name">Destiny Moore</div>
+        <div class="pc-title">Bootcamp Graduate · Atlanta</div>
+        <div class="pc-skills"><span class="pc-skill">React</span><span class="pc-skill">Python</span><span class="pc-skill">SQL</span></div>
+        <div class="pc-status"><div class="status-dot"></div>Open to work</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- STATS -->
+<section class="section">
+  <div class="section-inner">
+    <div class="stats-row fade-in">
+      <div class="stat-cell"><div class="stat-num">∞<span style="font-size:1.8rem"> free</span></div><div class="stat-label">vault records, forever</div></div>
+      <div class="stat-cell"><div class="stat-num"><span>1</span> URL</div><div class="stat-label">replaces the resume</div></div>
+      <div class="stat-cell"><div class="stat-num">$<span>0</span></div><div class="stat-label">for every individual</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT DEVELOPER -->
+<section class="section" id="about" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="section-inner">
+    <div class="section-label">The Builder</div>
+    <div class="about-grid fade-in">
+      <div class="dev-avatar-wrap">
+        <div class="dev-avatar">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80" alt="Mario A. Espindola" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="dev-avatar-fallback" style="display:none">ME</div>
+        </div>
+        <div class="dev-badge"><strong>@mario-espindola</strong> · Builder</div>
+      </div>
+      <div class="about-content">
+        <div class="dev-name">Mario A. Espindola</div>
+        <div class="dev-credentials">MPA · IPMA-CP · Product Builder · Public Sector Strategist</div>
+        <div class="dev-bio">
+          <p>I built FOLIO because I watched people — brilliant, capable, hardworking people — get filtered out by systems designed to process them, not see them. A nurse trying to move into health tech. A teacher who wants to become an instructional designer. A bootcamp grad who outworks everyone in the room but can't get past an ATS.</p>
+          <p>The resume is a 1950s technology. The PDF made it worse. I have a background in public administration, program management, and technology — and I built FOLIO to be the tool I wish existed when I was navigating career transitions myself.</p>
+          <p>This is free forever for individuals. The people who need it most shouldn't have to pay for it. That's not charity — it's architecture.</p>
+        </div>
+        <div class="dev-links">
+          <a class="dev-link" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">📧 Send a message</a>
+          <a class="dev-link" href="support.html">💚 Support the project</a>
+          <a class="dev-link" href="https://github.com/folio-so/folio" target="_blank">⭐ Star on GitHub</a>
+          <a class="dev-link" onclick="openAuth('signup')">✦ Join the beta</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BETA / DISCLAIMER -->
+<section class="section" id="beta">
+  <div class="section-inner">
+    <div class="section-label">Beta Program</div>
+    <div class="disclaimer-box fade-in">
+      <div class="disclaimer-title">
+        ⚠️ Beta Disclaimer — Please Read
+      </div>
+      <div class="disclaimer-body">
+        <p><strong style="color:var(--text-primary)">FOLIO is currently in closed beta.</strong> You are using an early version of the software that may have bugs, incomplete features, and unexpected behavior. Your participation helps make the product better for everyone.</p>
+        <p><strong style="color:var(--text-primary)">Data:</strong> While we take your data privacy seriously, this is a beta environment. Do not store sensitive information (SSN, financial data, passwords) in your vault. Data may be reset between major versions with advance notice.</p>
+        <p><strong style="color:var(--text-primary)">AI outputs:</strong> All AI-generated content (resumes, cover letters, gap analysis) is a starting point, not a finished product. Review everything before using it in a professional context. The AI does not invent facts — but verify outputs match your vault.</p>
+        <p><strong style="color:var(--text-primary)">Free forever:</strong> The core product is and will always be free for individuals. Any future paid features will only add capability — they will never remove features currently free.</p>
+        <p><strong style="color:var(--text-primary)">Open source:</strong> FOLIO is licensed under AGPL-3.0. The code is public at github.com/folio-so/folio. You can verify how your data is handled.</p>
+        <p style="color:var(--text-muted)">By creating an account you agree to our <a href="#" style="color:var(--accent-text)">Terms of Service</a> and <a href="#" style="color:var(--accent-text)">Privacy Policy</a>. Questions? <a onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})" style="color:var(--accent-text);cursor:pointer">Contact Mario directly.</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT & NEWSLETTER -->
+<section class="section" id="contact" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="section-inner">
+    <div class="section-label">Get in Touch</div>
+    <h2 class="section-title" style="margin-bottom:2.5rem">Let's <em>connect.</em></h2>
+    <div class="contact-grid">
+
+      <!-- Contact form -->
+      <div class="contact-card">
+        <h3>Send Mario a message</h3>
+        <p>Questions, feedback, collaboration ideas, or just want to say hi. I read every message.</p>
+        <div class="form-inner" id="contact-form-inner">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="c-name" type="text" placeholder="Your name"></div>
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="c-email" type="email" placeholder="you@email.com"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Subject</label><input class="form-input" id="c-subject" type="text" placeholder="What's on your mind?"></div>
+          <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" id="c-msg" placeholder="Tell me about yourself, your feedback, or your question..."></textarea></div>
+          <button class="submit-btn" onclick="submitContact()">Send message →</button>
+        </div>
+        <div class="success-msg" id="contact-success">
+          ✦ Message sent! Mario will reply within 48 hours. Thank you.
+        </div>
+      </div>
+
+      <!-- Newsletter signup -->
+      <div class="contact-card">
+        <h3>Stay in the loop</h3>
+        <p>Get updates on new features, launch milestones, and behind-the-scenes builder notes. No spam. Unsubscribe anytime.</p>
+        <div class="form-inner" id="newsletter-inner">
+          <div class="form-group"><label class="form-label">Your name</label><input class="form-input" id="nl-name" type="text" placeholder="First name"></div>
+          <div class="form-group"><label class="form-label">Email address</label><input class="form-input" id="nl-email" type="email" placeholder="you@email.com"></div>
+          <div class="form-group">
+            <label class="form-label">I am a...</label>
+            <select class="form-input" id="nl-role" style="appearance:none;cursor:pointer">
+              <option value="">Select one</option>
+              <option>Student / Recent grad</option>
+              <option>Job seeker</option>
+              <option>Career changer</option>
+              <option>Working professional</option>
+              <option>Recruiter / Hiring manager</option>
+              <option>Mentor / Advisor</option>
+              <option>Angel investor</option>
+              <option>Just curious</option>
+            </select>
+          </div>
+          <button class="submit-btn" onclick="submitNewsletter()">Subscribe to updates →</button>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:.75rem;font-family:var(--font-mono)">Your email is never shared. Ever.</p>
+        </div>
+        <div class="success-msg" id="newsletter-success">
+          ✦ You're on the list! Watch your inbox for the first update.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <h2 style="position:relative">The PDF was<br>a <em>workaround.</em></h2>
+  <p style="position:relative">FOLIO is the fix. Claim your handle — it takes 60 seconds and it's free for life.</p>
+  <div style="position:relative;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="openAuth('signup')">Get your handle →</button>
+    <a class="btn btn-ghost" href="support.html">Support the project 💚</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <svg width="20" height="20" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#00ff87"/><text x="16" y="22" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="16" fill="#000">F</text></svg>
+      folio — built by Mario A. Espindola
+    </div>
+    <div class="footer-links">
+      <a href="#features">Features</a>
+      <a href="#about">About</a>
+      <a href="support.html">Support</a>
+      <a href="auth.html">Sign up</a>
+      <a href="https://github.com/folio-so/folio" target="_blank">GitHub</a>
+      <a href="#contact">Contact</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+    </div>
+    <div class="footer-copy">© 2025 FOLIO · AGPL-3.0 · Beta v0.1</div>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal" onclick="closeAuthOnOverlay(event)">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeAuth()">×</button>
+
+    <div id="modal-form-wrap">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">Join the beta.</div>
+        <div class="modal-sub" id="modal-sub">Free forever. No credit card. Takes 60 seconds.</div>
+      </div>
+      <div class="modal-body">
+
+        <!-- OAuth -->
+        <div class="oauth-btns">
+          <button class="oauth-btn" onclick="handleOAuth('Google')">
+            <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Google
+          </button>
+          <button class="oauth-btn" onclick="handleOAuth('Microsoft')">
+            <svg viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
+            Microsoft
+          </button>
+          <button class="oauth-btn" onclick="handleOAuth('GitHub')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </button>
+          <button class="oauth-btn full" onclick="handleOAuth('Phone')">
+            📱 Continue with phone number
+          </button>
+        </div>
+
+        <div class="divider-row">
+          <div class="divider-line"></div>
+          <div class="divider-text">or use email</div>
+          <div class="divider-line"></div>
+        </div>
+
+        <!-- Email form -->
+        <div id="signup-fields">
+          <div class="form-group"><label class="form-label">Full name</label><input class="form-input" id="m-name" type="text" placeholder="Your name" autocomplete="name"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="m-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="pw-wrap">
+            <input class="form-input" id="m-pw" type="password" placeholder="8+ characters" style="padding-right:42px">
+            <button class="pw-toggle" onclick="togglePw()" type="button">
+              <svg id="pw-show" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="pw-hide" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+        </div>
+        <div id="invite-field" class="form-group">
+          <label class="form-label">Invite code <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(required during beta)</span></label>
+          <input class="form-input" id="m-invite" type="text" placeholder="FOLIO-XXXX" style="font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase">
+          <div class="invite-note">Don't have one? <a onclick="closeAuth();document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Request access from Mario →</a></div>
+        </div>
+
+        <button class="submit-btn" id="auth-submit" onclick="submitAuth()" style="margin-top:.5rem">
+          <span id="auth-submit-label">Create free account</span>
+        </button>
+
+        <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:.75rem;font-family:var(--font-mono)">
+          By signing up you agree to our <a href="#" style="color:var(--text-secondary)">Terms</a> &amp; <a href="#" style="color:var(--text-secondary)">Privacy Policy</a>
+        </p>
+
+        <div class="modal-toggle" id="auth-toggle" onclick="toggleAuthMode()">
+          Have an account? <span>Sign in instead</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-success" id="modal-success">
+      <div class="modal-success-icon">✦</div>
+      <div class="modal-success-title">You're in.</div>
+      <p class="modal-success-msg">Check your email to verify your address, then claim your handle. Welcome to the beta — your feedback shapes the product.</p>
+      <button class="submit-btn" style="margin-top:1.5rem;max-width:300px;margin-left:auto;margin-right:auto;display:block" onclick="closeAuth()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
+
+<script>
+/* ── TYPING ── */
+const handles=['@mario','@yourname','@dev-lead','@sarah-k','@researcher'];
+let hi=0,ci=0,typing=true;
+function typeHandle(){
+  const el=document.getElementById('type-handle');if(!el)return;
+  const t=handles[hi];
+  if(typing){el.textContent=t.slice(0,ci+1);ci++;if(ci>=t.length){typing=false;setTimeout(typeHandle,1800);return;}}
+  else{el.textContent=t.slice(0,ci-1);ci--;if(ci<=0){typing=true;hi=(hi+1)%handles.length;}}
+  setTimeout(typeHandle,typing?85:42);
+}
+typeHandle();
+
+/* ── AUTH MODAL ── */
+let authMode='signup';
+function openAuth(mode){
+  authMode=mode;
+  document.getElementById('auth-modal').classList.add('show');
+  updateAuthUI();
+}
+function closeAuth(){document.getElementById('auth-modal').classList.remove('show');resetModal();}
+function closeAuthOnOverlay(e){if(e.target===document.getElementById('auth-modal'))closeAuth();}
+function resetModal(){
+  document.getElementById('modal-form-wrap').style.display='block';
+  document.getElementById('modal-success').classList.remove('show');
+  ['m-name','m-email','m-pw','m-invite'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('auth-submit-label').textContent='Create free account';
+  document.getElementById('auth-submit').disabled=false;
+}
+function updateAuthUI(){
+  const isSU=authMode==='signup';
+  document.getElementById('modal-title').textContent=isSU?'Join the beta.':'Welcome back.';
+  document.getElementById('modal-sub').textContent=isSU?'Free forever. No credit card. Takes 60 seconds.':'Sign in to your vault.';
+  document.getElementById('signup-fields').style.display=isSU?'block':'none';
+  document.getElementById('invite-field').style.display=isSU?'block':'none';
+  document.getElementById('auth-submit-label').textContent=isSU?'Create free account':'Sign in';
+  document.getElementById('auth-toggle').innerHTML=isSU?'Have an account? <span>Sign in instead</span>':"Don't have an account? <span>Sign up free</span>";
+}
+function toggleAuthMode(){authMode=authMode==='signup'?'login':'signup';updateAuthUI();}
+function handleOAuth(p){closeAuth();showToast(`Connecting to ${p}...`);setTimeout(()=>showToast(`${p} authentication — live in production`),1400);}
+function togglePw(){
+  const i=document.getElementById('m-pw');
+  const show=document.getElementById('pw-show'),hide=document.getElementById('pw-hide');
+  if(i.type==='password'){i.type='text';show.style.display='none';hide.style.display='block';}
+  else{i.type='password';show.style.display='block';hide.style.display='none';}
+}
+function submitAuth(){
+  const btn=document.getElementById('auth-submit');
+  const email=document.getElementById('m-email').value.trim();
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showToast('Please enter a valid email');return;}
+  if(authMode==='signup'){
+    const invite=document.getElementById('m-invite').value.trim().toUpperCase();
+    const validCodes=['FOLIO-BETA','FOLIO-2025','FOLIO-TEST','MARIO-TEST','EARLY-ACCESS'];
+    if(!validCodes.includes(invite)&&invite!==''){showToast('Invite code not recognized — request one from Mario');return;}
+  }
+  btn.disabled=true;
+  document.getElementById('auth-submit-label').textContent='Working...';
+  setTimeout(()=>{
+    document.getElementById('modal-form-wrap').style.display='none';
+    document.getElementById('modal-success').classList.add('show');
+  },1400);
+}
+
+/* ── CONTACT / NEWSLETTER ── */
+function submitContact(){
+  const name=document.getElementById('c-name').value.trim();
+  const email=document.getElementById('c-email').value.trim();
+  const msg=document.getElementById('c-msg').value.trim();
+  if(!name||!email||!msg){showToast('Please fill in all fields');return;}
+  document.getElementById('contact-form-inner').classList.add('hidden');
+  document.getElementById('contact-success').classList.add('show');
+}
+function submitNewsletter(){
+  const email=document.getElementById('nl-email').value.trim();
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showToast('Please enter a valid email');return;}
+  document.getElementById('newsletter-inner').classList.add('hidden');
+  document.getElementById('newsletter-success').classList.add('show');
+}
+
+/* ── SCROLL FADE ── */
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}}),{threshold:.08});
+document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
+
+/* ── TOAST ── */
+let toastTimer;
+function showToast(msg){
+  document.getElementById('toast-msg').textContent=msg;
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>document.getElementById('toast').classList.remove('show'),3200);
+}
+
+/* ── ESC ── */
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAuth();});
+</script>
+</body>
+</html>

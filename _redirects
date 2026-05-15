@@ -1,0 +1,7 @@
+/login    /auth.html    301
+/signup   /auth.html    301
+/register /auth.html    301
+/admin    /admin.html   200
+/donate   /support.html 301
+/invest   /support.html 301
+/app/*    /dashboard.html 200

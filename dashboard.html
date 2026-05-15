@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOLIO — My Vault</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#09090b;--surface:#111113;--surface-2:#17171a;--surface-3:#1e1e22;--border:rgba(255,255,255,0.07);--border-bright:rgba(255,255,255,0.13);--text-primary:#f4f1ec;--text-secondary:#8a8680;--text-muted:#3d3b39;--accent:#00ff87;--accent-dim:rgba(0,255,135,0.09);--accent-text:#00cc6a;--gold:#c8a96e;--blue:#4488ff;--red:#ff4444;--font-display:'DM Serif Display',Georgia,serif;--font-ui:'Syne',sans-serif;--font-mono:'JetBrains Mono',monospace;--radius:6px;--radius-lg:12px;--radius-xl:18px;--sidebar-w:220px;--topbar-h:52px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary);-webkit-font-smoothing:antialiased;}
+
+/* BETA RIBBON */
+.beta-ribbon{position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(90deg,rgba(0,255,135,.1),rgba(68,136,255,.08));border-bottom:1px solid rgba(0,255,135,.15);padding:6px 1.5rem;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-family:var(--font-mono);color:var(--text-secondary);}
+.beta-ribbon strong{color:var(--accent-text);}
+.beta-ribbon a{color:var(--accent-text);cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+.ribbon-dismiss{cursor:pointer;color:var(--text-muted);transition:color .12s;font-size:14px;line-height:1;}
+.ribbon-dismiss:hover{color:var(--text-secondary);}
+
+/* SHELL */
+.app-shell{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;height:100vh;padding-top:33px;}
+
+/* TOPBAR */
+.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;border-bottom:1px solid var(--border);background:rgba(9,9,11,.95);backdrop-filter:blur(12px);position:relative;z-index:50;}
+.topbar-left{display:flex;align-items:center;gap:1.25rem;}
+.logo{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:14px;font-weight:500;color:var(--text-primary);cursor:pointer;text-decoration:none;}
+.logo-mark{width:22px;height:22px;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#000;}
+.cmd-pill{display:flex;align-items:center;gap:8px;padding:5px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text-muted);font-size:11px;font-family:var(--font-mono);cursor:pointer;transition:all .12s;min-width:160px;}
+.cmd-pill:hover{border-color:var(--border-bright);color:var(--text-secondary);}
+.cmd-pill .kbds{margin-left:auto;display:flex;gap:3px;}
+.kbd{background:var(--surface-3);border:1px solid var(--border-bright);border-radius:3px;padding:1px 5px;font-size:9px;color:var(--text-muted);}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.icon-btn{width:32px;height:32px;border-radius:var(--radius);border:1px solid transparent;background:transparent;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;}
+.icon-btn:hover{background:var(--surface);border-color:var(--border);color:var(--text-primary);}
+.user-chip{display:flex;align-items:center;gap:7px;padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:all .12s;font-size:12px;font-family:var(--font-mono);}
+.user-chip:hover{background:var(--surface-2);}
+.user-avatar{width:22px;height:22px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(0,255,135,.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--accent-text);}
+.user-handle{color:var(--text-secondary);}
+
+/* SIDEBAR */
+.sidebar{border-right:1px solid var(--border);background:var(--surface);overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--surface-3);}
+.comp-widget{margin:.75rem;padding:11px;border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--surface-2);}
+.comp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.comp-label{font-size:10px;font-family:var(--font-mono);color:var(--text-secondary);}
+.comp-score{font-size:12px;font-weight:700;font-family:var(--font-mono);color:var(--accent-text);}
+.comp-bar{height:3px;background:var(--surface-3);border-radius:100px;overflow:hidden;margin-bottom:7px;}
+.comp-fill{height:100%;background:linear-gradient(90deg,var(--accent-text),var(--accent));border-radius:100px;width:74%;transition:width .6s cubic-bezier(.34,1.56,.64,1);}
+.comp-tip{font-size:11px;color:var(--text-secondary);line-height:1.5;}
+.comp-tip strong{color:var(--text-primary);font-weight:600;}
+.nav-section{padding:.75rem .65rem .3rem;}
+.nav-label{font-size:10px;font-family:var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);padding:0 .4rem;margin-bottom:3px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:var(--radius);color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;transition:all .12s;border:1px solid transparent;white-space:nowrap;}
+.nav-item:hover{background:var(--surface-2);color:var(--text-primary);}
+.nav-item.active{background:var(--accent-dim);border-color:rgba(0,255,135,.12);color:var(--accent-text);}
+.nav-count{margin-left:auto;font-size:10px;font-family:var(--font-mono);color:var(--text-muted);background:var(--surface-3);padding:1px 6px;border-radius:100px;}
+.nav-item.active .nav-count{background:rgba(0,255,135,.1);color:var(--accent-text);}
+.sidebar-div{height:1px;background:var(--border);margin:5px .75rem;}
+
+/* MAIN */
+.main{overflow-y:auto;background:var(--paper);}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:2px;}
+.view{display:none;padding:1.75rem 2rem;}
+.view.active{display:block;}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;gap:1rem;flex-wrap:wrap;}
+.page-title{font-family:var(--font-display);font-size:1.8rem;font-weight:400;letter-spacing:-.02em;line-height:1.1;}
+.page-meta{font-size:11px;font-family:var(--font-mono);color:var(--text-muted);margin-top:4px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);border:1px solid transparent;font-size:12px;font-weight:600;font-family:var(--font-ui);cursor:pointer;transition:all .15s;}
+.btn-primary{background:var(--accent);color:#000;border-color:var(--accent);}
+.btn-primary:hover{background:#00e87a;}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border-bright);}
+.btn-ghost:hover{background:var(--surface);color:var(--text-primary);}
+.btn-sm{padding:5px 12px;font-size:11px;}
+
+/* RECORDS */
+.record-list{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;margin-bottom:.75rem;}
+.record-row{background:var(--surface);display:flex;align-items:center;gap:.85rem;padding:12px 14px;cursor:pointer;transition:background .12s;}
+.record-row:hover{background:var(--surface-2);}
+.rec-logo{width:34px;height:34px;border-radius:var(--radius);background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-secondary);flex-shrink:0;border:1px solid var(--border);}
+.rec-main{flex:1;min-width:0;}
+.rec-title{font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rec-sub{font-size:11px;color:var(--text-secondary);font-family:var(--font-mono);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rec-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.vis-chip{font-size:9px;font-family:var(--font-mono);padding:2px 8px;border-radius:100px;border:1px solid;cursor:pointer;transition:all .12s;}
+.vis-pub{border-color:rgba(0,255,135,.25);color:var(--accent-text);background:var(--accent-dim);}
+.vis-priv{border-color:var(--border);color:var(--text-muted);}
+.rec-actions{display:flex;gap:3px;opacity:0;transition:opacity .12s;}
+.record-row:hover .rec-actions{opacity:1;}
+.act-btn{width:26px;height:26px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface-3);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .12s;}
+.act-btn:hover{background:var(--surface-2);color:var(--text-primary);border-color:var(--border-bright);}
+.add-row-btn{display:flex;align-items:center;gap:7px;width:100%;padding:10px 14px;border:1px dashed var(--border-bright);border-radius:var(--radius-xl);background:transparent;color:var(--text-secondary);font-size:12px;font-family:var(--font-ui);font-weight:500;cursor:pointer;transition:all .15s;}
+.add-row-btn:hover{border-color:rgba(0,255,135,.3);color:var(--accent-text);background:var(--accent-dim);}
+
+/* TABS */
+.tab-bar{display:flex;gap:1px;border-bottom:1px solid var(--border);margin-bottom:1.5rem;overflow-x:auto;}
+.tab{padding:9px 13px;font-size:12px;font-weight:500;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.tab:hover{color:var(--text-primary);}
+.tab.active{color:var(--text-primary);border-bottom-color:var(--accent);}
+.tab-count{font-size:10px;font-family:var(--font-mono);color:var(--text-muted);background:var(--surface-2);padding:1px 5px;border-radius:100px;}
+.tab.active .tab-count{background:var(--accent-dim);color:var(--accent-text);}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - var(--topbar-h) - 33px);}
+.chat-msgs{flex:1;overflow-y:auto;padding:1.25rem;}
+.chat-msgs::-webkit-scrollbar{width:3px;}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--surface-3);}
+.msg{max-width:640px;margin-bottom:.85rem;animation:fadeUp .2s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.msg.user{margin-left:auto;}
+.bubble{padding:11px 15px;border-radius:var(--radius-lg);font-size:13px;line-height:1.6;}
+.msg.assistant .bubble{background:var(--surface);border:1px solid var(--border);color:var(--text-primary);border-radius:var(--radius-lg) var(--radius-lg) var(--radius-lg) 3px;}
+.msg.user .bubble{background:var(--accent-dim);border:1px solid rgba(0,255,135,.15);color:var(--text-primary);border-radius:var(--radius-lg) var(--radius-lg) 3px var(--radius-lg);}
+.msg-meta{font-size:10px;color:var(--text-muted);font-family:var(--font-mono);margin-top:3px;padding:0 3px;}
+.msg.user .msg-meta{text-align:right;}
+.typing-indicator{display:flex;gap:4px;padding:13px 15px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) var(--radius-lg) 3px;width:fit-content;}
+.td{width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:bounce 1.2s ease infinite;}
+.td:nth-child(2){animation-delay:.2s;}.td:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,100%{transform:translateY(0);background:var(--text-muted);}50%{transform:translateY(-5px);background:var(--accent-text);}}
+.chat-chips{display:flex;gap:6px;flex-wrap:wrap;padding:.75rem 1.25rem;flex-shrink:0;}
+.chip{font-size:11px;font-family:var(--font-mono);padding:5px 12px;border-radius:100px;border:1px solid var(--border-bright);background:var(--surface);color:var(--text-secondary);cursor:pointer;transition:all .12s;white-space:nowrap;}
+.chip:hover{border-color:rgba(0,255,135,.25);color:var(--accent-text);background:var(--accent-dim);}
+.chat-input-area{border-top:1px solid var(--border);padding:.85rem 1.25rem;flex-shrink:0;}
+.chat-input-row{display:flex;gap:8px;align-items:flex-end;background:var(--surface);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:9px 13px;transition:border-color .15s;}
+.chat-input-row:focus-within{border-color:rgba(0,255,135,.35);}
+.chat-ta{flex:1;background:transparent;border:none;outline:none;resize:none;color:var(--text-primary);font-size:13px;font-family:var(--font-ui);line-height:1.5;max-height:110px;min-height:20px;}
+.chat-ta::placeholder{color:var(--text-muted);}
+.send-btn{width:30px;height:30px;background:var(--accent);border:none;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;}
+.send-btn:hover{background:#00e87a;}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-3);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:9px 18px;font-size:12px;font-family:var(--font-mono);color:var(--text-primary);z-index:9999;display:flex;align-items:center;gap:7px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- BETA RIBBON -->
+<div class="beta-ribbon" id="ribbon">
+  ⚡ <strong>FOLIO Beta v0.1</strong> — You're one of the first. <a href="index.html#contact">Send feedback to Mario →</a>
+  &nbsp;·&nbsp; Data may reset between major versions. Export your vault anytime.
+  <span class="ribbon-dismiss" onclick="document.getElementById('ribbon').style.display='none';document.querySelector('.app-shell').style.paddingTop='0'">×</span>
+</div>
+
+<div class="app-shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="logo" href="index.html">
+        <div class="logo-mark">F</div>
+        folio
+      </a>
+      <div class="cmd-pill" onclick="showToast('⌘K palette — press Cmd+K')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Search vault...
+        <span class="kbds"><span class="kbd">⌘</span><span class="kbd">K</span></span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a href="profile.html" target="_blank">
+        <button class="btn btn-ghost btn-sm">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          @me ↗
+        </button>
+      </a>
+      <button class="icon-btn" onclick="showToast('No new messages')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <div class="user-chip" onclick="showToast('Profile menu — Settings, Sign out')">
+        <div class="user-avatar">ME</div>
+        <span class="user-handle">@mario-e</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="comp-widget">
+      <div class="comp-row"><span class="comp-label">Vault health</span><span class="comp-score">74%</span></div>
+      <div class="comp-bar"><div class="comp-fill"></div></div>
+      <div class="comp-tip"><strong>Add 3 skills</strong> to reach 80%</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Vault</div>
+      <div class="nav-item active" onclick="switchView('vault',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Work <span class="nav-count">4</span>
+      </div>
+      <div class="nav-item" onclick="switchView('education',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        Education <span class="nav-count">2</span>
+      </div>
+      <div class="nav-item" onclick="switchView('skills',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Skills <span class="nav-count">18</span>
+      </div>
+      <div class="nav-item" onclick="switchView('credentials',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        Credentials <span class="nav-count">3</span>
+      </div>
+      <div class="nav-item" onclick="switchView('projects',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Projects <span class="nav-count">2</span>
+      </div>
+    </div>
+
+    <div class="sidebar-div"></div>
+
+    <div class="nav-section">
+      <div class="nav-label">Tools</div>
+      <div class="nav-item" onclick="switchView('chat',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        AI Chat
+      </div>
+      <div class="nav-item" onclick="switchView('jobs',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Job Targets <span class="nav-count">3</span>
+      </div>
+      <div class="nav-item" onclick="showToast('Generating PDF snapshot...')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF
+      </div>
+    </div>
+
+    <div class="sidebar-div"></div>
+
+    <div class="nav-section">
+      <div class="nav-label">Profile</div>
+      <div class="nav-item" onclick="switchView('profile-edit',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Edit Profile
+      </div>
+      <div class="nav-item" onclick="window.open('profile.html','_blank')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Profile ↗
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- VAULT / WORK -->
+    <div class="view active" id="view-vault">
+      <div class="page-header">
+        <div><div class="page-title">Vault</div><div class="page-meta">// 29 records · last updated 2h ago</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="showToast('Import: LinkedIn PDF, JSON Resume, plain text')">↑ Import</button>
+          <button class="btn btn-primary btn-sm" onclick="showToast('Add record drawer — opening')">+ Add record</button>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <div class="tab active" onclick="setTab(this)">Work <span class="tab-count">4</span></div>
+        <div class="tab" onclick="setTab(this)">Education <span class="tab-count">2</span></div>
+        <div class="tab" onclick="setTab(this)">Credentials <span class="tab-count">3</span></div>
+        <div class="tab" onclick="setTab(this)">Projects <span class="tab-count">2</span></div>
+        <div class="tab" onclick="setTab(this)">More ↓</div>
+      </div>
+      <div class="record-list">
+        <div class="record-row" onclick="showToast('Opening work record...')">
+          <div class="rec-logo" style="background:rgba(0,130,255,.1);color:#4488ff;border-color:rgba(68,136,255,.2)">AC</div>
+          <div class="rec-main"><div class="rec-title">Principal Product Designer</div><div class="rec-sub">Acme Corp · Jan 2023 → Present · Remote</div></div>
+          <div class="rec-right">
+            <div class="vis-chip vis-pub" onclick="event.stopPropagation();showToast('Record is public')">Public</div>
+            <div class="rec-actions">
+              <button class="act-btn" onclick="event.stopPropagation();showToast('Edit drawer opening...')">✎</button>
+              <button class="act-btn" onclick="event.stopPropagation();showToast('Record moved to trash')">✕</button>
+            </div>
+          </div>
+        </div>
+        <div class="record-row" onclick="showToast('Opening work record...')">
+          <div class="rec-logo" style="background:rgba(107,95,255,.1);color:#6b5fff;border-color:rgba(107,95,255,.2)">ST</div>
+          <div class="rec-main"><div class="rec-title">Senior Product Designer</div><div class="rec-sub">Stripe · Mar 2020 → Dec 2022 · San Francisco</div></div>
+          <div class="rec-right">
+            <div class="vis-chip vis-pub" onclick="event.stopPropagation()">Public</div>
+            <div class="rec-actions"><button class="act-btn">✎</button><button class="act-btn">✕</button></div>
+          </div>
+        </div>
+        <div class="record-row" onclick="showToast('Opening work record...')">
+          <div class="rec-logo">SQ</div>
+          <div class="rec-main"><div class="rec-title">Product Designer</div><div class="rec-sub">Square · Jun 2018 → Feb 2020 · San Francisco</div></div>
+          <div class="rec-right">
+            <div class="vis-chip vis-priv" onclick="event.stopPropagation();showToast('Made public')">Private</div>
+            <div class="rec-actions"><button class="act-btn">✎</button><button class="act-btn">✕</button></div>
+          </div>
+        </div>
+        <div class="record-row" onclick="showToast('Opening work record...')">
+          <div class="rec-logo">DP</div>
+          <div class="rec-main"><div class="rec-title">UX Designer</div><div class="rec-sub">Dropbox · May 2016 → May 2018 · San Francisco</div></div>
+          <div class="rec-right">
+            <div class="vis-chip vis-pub" onclick="event.stopPropagation()">Public</div>
+            <div class="rec-actions"><button class="act-btn">✎</button><button class="act-btn">✕</button></div>
+          </div>
+        </div>
+      </div>
+      <button class="add-row-btn" onclick="showToast('Add work experience — form opening')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add work experience
+      </button>
+    </div>
+
+    <!-- CHAT -->
+    <div class="view" id="view-chat" style="padding:0;height:calc(100vh - var(--topbar-h) - 33px);">
+      <div class="chat-wrap">
+        <div class="chat-msgs" id="chat-msgs">
+          <div class="msg assistant">
+            <div class="bubble">Hi! Your vault has <strong>29 records</strong> and a health score of <strong>74%</strong>.<br><br>What would you like to work on today? I can help you add records, improve your highlights, analyze a job description, or generate a tailored resume.</div>
+            <div class="msg-meta">FOLIO · just now</div>
+          </div>
+        </div>
+        <div class="chat-chips" id="chat-chips">
+          <div class="chip" onclick="sendChat('Add a new role')">Add a new role</div>
+          <div class="chip" onclick="sendChat('Improve my highlights')">Improve highlights</div>
+          <div class="chip" onclick="sendChat('Check a job description')">Check a JD</div>
+          <div class="chip" onclick="sendChat('Generate a resume PDF')">Generate resume</div>
+          <div class="chip" onclick="sendChat('What is my vault score?')">Vault score</div>
+        </div>
+        <div class="chat-input-area">
+          <div class="chat-input-row">
+            <textarea class="chat-ta" id="chat-ta" placeholder="Message FOLIO..." rows="1" onkeydown="chatKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" onclick="sendChatFromInput()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTHER VIEWS (placeholder) -->
+    <div class="view" id="view-education"><div class="page-header"><div class="page-title">Education</div></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 2 education records</div></div>
+    <div class="view" id="view-skills"><div class="page-header"><div class="page-title">Skills</div></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 18 skills tracked</div></div>
+    <div class="view" id="view-credentials"><div class="page-header"><div class="page-title">Credentials</div></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 3 credentials</div></div>
+    <div class="view" id="view-projects"><div class="page-header"><div class="page-title">Projects</div></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 2 projects</div></div>
+    <div class="view" id="view-jobs"><div class="page-header"><div class="page-title">Job Targets</div><button class="btn btn-primary btn-sm" onclick="showToast('Add job target — paste a JD')">+ Add target</button></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 3 active targets</div></div>
+    <div class="view" id="view-profile-edit"><div class="page-header"><div class="page-title">Edit Profile</div><button class="btn btn-ghost btn-sm" onclick="window.open('profile.html','_blank')">View live ↗</button></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// Handle: @mario-e · Profile visibility: Public</div></div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
+
+<script>
+/* VIEW ROUTER */
+function switchView(id,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const target=document.getElementById('view-'+id);
+  if(target)target.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+}
+
+/* TABS */
+function setTab(el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  showToast('Loading '+el.textContent.trim().replace(/\d+/,'').trim()+'...');
+}
+
+/* CHAT */
+const chatResponses={
+  'Add a new role':"Sure — what company did you work at?",
+  'Improve highlights':"Which role would you like to improve? I can help quantify your impact.",
+  'Check a JD':"Paste the job description and I'll run a full gap analysis.",
+  'Generate resume PDF':"Generating your snapshot PDF now. For a tailored resume, add a job target first.",
+  'What is my vault score?':"Your vault health is 74/100. Top action: add 3 more skills to reach 80%."
+};
+
+function sendChat(text){
+  document.getElementById('chat-chips').style.display='none';
+  addMsg('user',text);
+  showTyping();
+  setTimeout(()=>{
+    removeTyping();
+    addMsg('assistant',chatResponses[text]||'Got it. Let me help with that. What details can you share?');
+  },900+Math.random()*600);
+}
+
+function sendChatFromInput(){
+  const ta=document.getElementById('chat-ta');
+  const text=ta.value.trim();
+  if(!text)return;
+  ta.value='';ta.style.height='20px';
+  sendChat(text);
+}
+
+function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatFromInput();}}
+function autoResize(el){el.style.height='20px';el.style.height=Math.min(el.scrollHeight,110)+'px';}
+
+let typingEl=null;
+function showTyping(){
+  const c=document.getElementById('chat-msgs');
+  typingEl=document.createElement('div');
+  typingEl.className='msg assistant';
+  typingEl.innerHTML='<div class="typing-indicator"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  c.appendChild(typingEl);c.scrollTop=c.scrollHeight;
+}
+function removeTyping(){if(typingEl){typingEl.remove();typingEl=null;}}
+
+function addMsg(role,text){
+  const c=document.getElementById('chat-msgs');
+  const d=document.createElement('div');
+  d.className='msg '+role;
+  d.innerHTML=`<div class="bubble">${text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div><div class="msg-meta">${role==='user'?'You':'FOLIO'} · just now</div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+
+/* TOAST */
+let toastTimer;
+function showToast(msg){
+  document.getElementById('toast-msg').textContent=msg;
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>document.getElementById('toast').classList.remove('show'),3000);
+}
+
+/* CMD+K */
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();showToast('⌘K — command palette ships with the React build');}
+});
+</script>
+</body>
+</html>

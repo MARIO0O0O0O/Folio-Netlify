@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOLIO Admin — Control Center</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #08080a;
+  --surface: #0f0f12;
+  --surface-2: #151518;
+  --surface-3: #1b1b1f;
+  --surface-4: #222228;
+  --border: rgba(255,255,255,0.06);
+  --border-bright: rgba(255,255,255,0.11);
+  --text-primary: #f2efea;
+  --text-secondary: #86837e;
+  --text-muted: #3a3836;
+  --accent: #00ff87;
+  --accent-dim: rgba(0,255,135,0.08);
+  --accent-text: #00cc6a;
+  --gold: #c8a96e;
+  --gold-dim: rgba(200,169,110,0.10);
+  --blue: #4488ff;
+  --blue-dim: rgba(68,136,255,0.08);
+  --purple: #a855f7;
+  --purple-dim: rgba(168,85,247,0.08);
+  --red: #ff4444;
+  --red-dim: rgba(255,68,68,0.08);
+  --orange: #ff8c42;
+  --orange-dim: rgba(255,140,66,0.08);
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-ui: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --sidebar-w: 230px;
+  --topbar-h: 54px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--font-ui); background: var(--paper); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+
+/* ── LOGIN GATE ─────────────────────────────── */
+.login-gate {
+  position: fixed; inset: 0; z-index: 9000;
+  background: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem;
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
+  width: 100%; max-width: 380px;
+  text-align: center;
+}
+.login-logo { margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 9px; }
+.login-logo-mark { width: 34px; height: 34px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #000; }
+.login-logo-text { font-family: var(--font-mono); font-size: 16px; font-weight: 500; }
+.login-title { font-family: var(--font-display); font-size: 1.6rem; font-weight: 400; margin-bottom: .3rem; letter-spacing: -.02em; }
+.login-sub { font-size: 12px; color: var(--text-secondary); margin-bottom: 1.75rem; font-family: var(--font-mono); }
+.login-input { width: 100%; padding: 11px 14px; background: var(--surface-2); border: 1px solid var(--border-bright); border-radius: var(--radius); color: var(--text-primary); font-size: 13px; font-family: var(--font-mono); outline: none; margin-bottom: .75rem; transition: border-color .15s; letter-spacing: .04em; }
+.login-input:focus { border-color: rgba(0,255,135,.4); }
+.login-input::placeholder { color: var(--text-muted); letter-spacing: 0; }
+.login-btn { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: var(--radius); color: #000; font-size: 13px; font-weight: 700; font-family: var(--font-ui); cursor: pointer; transition: all .15s; }
+.login-btn:hover { background: #00e87a; }
+.login-error { font-size: 11px; color: var(--red); margin-top: .5rem; font-family: var(--font-mono); display: none; }
+.login-error.show { display: block; }
+.login-hint { font-size: 11px; color: var(--text-muted); margin-top: .75rem; font-family: var(--font-mono); }
+
+/* ── APP SHELL ──────────────────────────────── */
+.app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; grid-template-rows: var(--topbar-h) 1fr; height: 100vh; }
+
+/* ── TOPBAR ──────────────────────────────────── */
+.topbar {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(8,8,10,.95);
+  backdrop-filter: blur(16px);
+  z-index: 50;
+}
+.topbar-left { display: flex; align-items: center; gap: 1.25rem; }
+.t-logo { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 14px; color: var(--text-primary); }
+.t-logo-mark { width: 24px; height: 24px; background: var(--accent); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #000; }
+.admin-chip { font-size: 10px; font-family: var(--font-mono); letter-spacing: .08em; color: var(--red); background: var(--red-dim); border: 1px solid rgba(255,68,68,.2); padding: 2px 9px; border-radius: 100px; text-transform: uppercase; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.t-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: .04em; }
+.t-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--red-dim); border: 1px solid rgba(255,68,68,.2); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--red); cursor: pointer; }
+.t-logout { font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); cursor: pointer; transition: color .12s; padding: 5px 10px; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; }
+.t-logout:hover { color: var(--red); border-color: rgba(255,68,68,.3); }
+
+/* ── SIDEBAR ──────────────────────────────────── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--surface-3); }
+
+.sidebar-section { padding: .85rem .65rem .4rem; }
+.s-label { font-size: 9px; font-family: var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); padding: 0 .4rem; margin-bottom: 3px; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: var(--radius); color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .12s; border: 1px solid transparent; white-space: nowrap; }
+.nav-item:hover { background: var(--surface-2); color: var(--text-primary); }
+.nav-item.active { background: var(--accent-dim); border-color: rgba(0,255,135,.1); color: var(--accent-text); }
+.nav-item svg { flex-shrink: 0; opacity: .7; }
+.nav-item.active svg { opacity: 1; color: var(--accent); }
+.nav-badge { margin-left: auto; font-size: 10px; font-family: var(--font-mono); background: var(--surface-3); color: var(--text-muted); padding: 1px 6px; border-radius: 100px; }
+.nav-item.active .nav-badge { background: var(--accent-dim); color: var(--accent-text); }
+.nav-badge.alert { background: var(--red-dim); color: var(--red); }
+.sidebar-div { height: 1px; background: var(--border); margin: 4px .65rem; }
+
+/* ── MAIN ──────────────────────────────────────── */
+.main { overflow-y: auto; background: var(--paper); }
+.main::-webkit-scrollbar { width: 4px; }
+.main::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 2px; }
+
+/* ── VIEWS ─────────────────────────────────────── */
+.view { display: none; padding: 1.75rem 2rem; }
+.view.active { display: block; }
+
+/* ── PAGE HEADER ────────────────────────────────── */
+.ph { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap; }
+.ph-title { font-family: var(--font-display); font-size: 1.7rem; font-weight: 400; letter-spacing: -.02em; line-height: 1.1; }
+.ph-meta { font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); margin-top: 3px; }
+.ph-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── BUTTONS ────────────────────────────────────── */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius); border: 1px solid transparent; font-size: 12px; font-weight: 600; font-family: var(--font-ui); cursor: pointer; transition: all .15s; white-space: nowrap; }
+.btn-primary { background: var(--accent); color: #000; border-color: var(--accent); }
+.btn-primary:hover { background: #00e87a; box-shadow: 0 3px 14px rgba(0,255,135,.2); }
+.btn-ghost { background: transparent; color: var(--text-secondary); border-color: var(--border-bright); }
+.btn-ghost:hover { background: var(--surface); color: var(--text-primary); }
+.btn-danger { background: transparent; color: var(--red); border-color: rgba(255,68,68,.3); }
+.btn-danger:hover { background: var(--red-dim); }
+.btn-sm { padding: 5px 12px; font-size: 11px; }
+.btn-icon { width: 30px; height: 30px; padding: 0; justify-content: center; background: transparent; border-color: var(--border); color: var(--text-secondary); }
+.btn-icon:hover { background: var(--surface-2); color: var(--text-primary); }
+
+/* ── STAT CARDS ─────────────────────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 2rem; }
+@media(max-width:900px) { .stat-grid { grid-template-columns: 1fr 1fr; } }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.25rem; position: relative; overflow: hidden; transition: background .15s; }
+.stat-card:hover { background: var(--surface-2); }
+.stat-card-label { font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary); letter-spacing: .05em; margin-bottom: .6rem; display: flex; align-items: center; gap: 6px; }
+.stat-card-value { font-family: var(--font-display); font-size: 2.2rem; font-weight: 400; line-height: 1; margin-bottom: .4rem; }
+.stat-card-delta { font-size: 11px; font-family: var(--font-mono); display: flex; align-items: center; gap: 5px; }
+.delta-up { color: var(--accent-text); }
+.delta-down { color: var(--red); }
+.delta-neutral { color: var(--text-muted); }
+.stat-accent { color: var(--accent); }
+.stat-gold { color: var(--gold); }
+.stat-blue { color: var(--blue); }
+.stat-purple { color: var(--purple); }
+.stat-card-icon { position: absolute; top: 1rem; right: 1rem; font-size: 1.3rem; opacity: .3; }
+
+/* ── CHARTS ─────────────────────────────────────── */
+.chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 2rem; }
+@media(max-width:900px) { .chart-grid { grid-template-columns: 1fr; } }
+.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.5rem; }
+.chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.chart-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.chart-sub { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px; }
+
+/* Sparkline bars */
+.bar-chart { display: flex; align-items: flex-end; gap: 3px; height: 80px; }
+.bar { flex: 1; background: var(--surface-3); border-radius: 2px 2px 0 0; transition: background .2s; cursor: pointer; position: relative; min-height: 4px; }
+.bar:hover { background: var(--accent-text); }
+.bar.today { background: var(--accent); }
+.bar-label { font-size: 9px; font-family: var(--font-mono); color: var(--text-muted); text-align: center; margin-top: 5px; }
+.bar-chart-wrap { display: flex; flex-direction: column; }
+
+/* Donut */
+.donut-wrap { display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap; padding: .5rem 0; }
+svg.donut { transform: rotate(-90deg); }
+.donut-segments { display: flex; flex-direction: column; gap: .6rem; }
+.donut-seg { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+.donut-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.donut-pct { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-left: auto; padding-left: 12px; }
+
+/* Geo bars */
+.geo-list { display: flex; flex-direction: column; gap: .6rem; }
+.geo-row { display: flex; align-items: center; gap: 10px; }
+.geo-label { font-size: 12px; color: var(--text-secondary); width: 90px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.geo-bar-wrap { flex: 1; height: 6px; background: var(--surface-3); border-radius: 100px; overflow: hidden; }
+.geo-bar { height: 100%; border-radius: 100px; background: var(--blue); transition: width .6s ease; }
+.geo-pct { font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); width: 32px; text-align: right; flex-shrink: 0; }
+
+/* ── DATA TABLES ─────────────────────────────────── */
+.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; margin-bottom: 1.5rem; }
+.table-header { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--border); }
+.table-title { font-size: 13px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.table-actions { display: flex; gap: 7px; align-items: center; }
+.search-input { padding: 6px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-size: 12px; font-family: var(--font-mono); outline: none; transition: border-color .15s; width: 180px; }
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { border-color: rgba(0,255,135,.3); }
+table { width: 100%; border-collapse: collapse; }
+thead tr { border-bottom: 1px solid var(--border); }
+th { padding: 9px 14px; font-size: 10px; font-family: var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); text-align: left; font-weight: 600; white-space: nowrap; }
+td { padding: 11px 14px; font-size: 13px; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface-2); color: var(--text-primary); }
+.td-bold { font-weight: 600; color: var(--text-primary); }
+.td-mono { font-family: var(--font-mono); font-size: 12px; }
+.td-handle { font-family: var(--font-mono); font-size: 12px; color: var(--accent-text); }
+.td-actions { display: flex; gap: 5px; opacity: 0; transition: opacity .12s; }
+tr:hover .td-actions { opacity: 1; }
+
+/* STATUS BADGES */
+.badge { font-size: 10px; font-family: var(--font-mono); padding: 2px 9px; border-radius: 100px; border: 1px solid; letter-spacing: .04em; display: inline-block; white-space: nowrap; }
+.badge-green { border-color: rgba(0,255,135,.25); color: var(--accent-text); background: var(--accent-dim); }
+.badge-blue { border-color: rgba(68,136,255,.25); color: var(--blue); background: var(--blue-dim); }
+.badge-gold { border-color: rgba(200,169,110,.25); color: var(--gold); background: var(--gold-dim); }
+.badge-red { border-color: rgba(255,68,68,.25); color: var(--red); background: var(--red-dim); }
+.badge-purple { border-color: rgba(168,85,247,.25); color: var(--purple); background: var(--purple-dim); }
+.badge-gray { border-color: var(--border-bright); color: var(--text-muted); background: transparent; }
+
+/* ── CONTENT EDITOR ─────────────────────────────── */
+.editor-layout { display: grid; grid-template-columns: 1fr 360px; gap: 14px; }
+@media(max-width:1000px) { .editor-layout { grid-template-columns: 1fr; } }
+.editor-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; }
+.editor-toolbar { display: flex; align-items: center; gap: 4px; padding: .75rem 1rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.toolbar-btn { padding: 4px 8px; border-radius: 4px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 12px; font-family: var(--font-mono); cursor: pointer; transition: all .12s; }
+.toolbar-btn:hover { background: var(--surface-2); color: var(--text-primary); border-color: var(--border); }
+.toolbar-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+.content-textarea { width: 100%; min-height: 320px; padding: 1.25rem; background: transparent; border: none; color: var(--text-primary); font-size: 14px; font-family: var(--font-ui); line-height: 1.7; outline: none; resize: vertical; }
+.content-textarea::placeholder { color: var(--text-muted); }
+.sidebar-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.25rem; margin-bottom: 12px; }
+.sidebar-card-title { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 7px; }
+.form-group { margin-bottom: .85rem; }
+.form-label { display: block; font-size: 10px; font-family: var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 5px; font-weight: 600; }
+.form-input, .form-select, .form-textarea-sm { width: 100%; padding: 9px 12px; background: var(--surface-2); border: 1px solid var(--border-bright); border-radius: var(--radius); color: var(--text-primary); font-size: 12px; font-family: var(--font-ui); outline: none; transition: border-color .15s; }
+.form-input::placeholder { color: var(--text-muted); }
+.form-input:focus, .form-select:focus, .form-textarea-sm:focus { border-color: rgba(0,255,135,.35); }
+.form-select { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888580' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+.form-select option { background: var(--surface-3); }
+.form-textarea-sm { resize: vertical; min-height: 70px; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: .6rem 0; border-bottom: 1px solid var(--border); }
+.toggle-row:last-child { border-bottom: none; }
+.toggle-label { font-size: 12px; color: var(--text-secondary); }
+.toggle { width: 34px; height: 18px; border-radius: 100px; position: relative; cursor: pointer; transition: background .2s; border: none; flex-shrink: 0; }
+.toggle.on { background: var(--accent); }
+.toggle.off { background: var(--surface-3); }
+.toggle-knob { position: absolute; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: #000; transition: left .2s; }
+.toggle.on .toggle-knob { left: 18px; }
+.toggle.off .toggle-knob { left: 2px; background: var(--text-muted); }
+
+/* ── INVITE CODES ─────────────────────────────── */
+.codes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+.code-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; display: flex; flex-direction: column; gap: .5rem; position: relative; }
+.code-card:hover { border-color: var(--border-bright); }
+.code-value { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--accent-text); letter-spacing: .06em; }
+.code-meta { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+.code-used { font-size: 10px; display: flex; align-items: center; gap: 6px; }
+.code-card-actions { display: flex; gap: 5px; margin-top: .25rem; }
+
+/* ── MESSAGES ─────────────────────────────────── */
+.message-list { display: flex; flex-direction: column; gap: 8px; }
+.message-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; cursor: pointer; transition: all .15s; }
+.message-card:hover { border-color: var(--border-bright); background: var(--surface-2); }
+.message-card.unread { border-color: rgba(0,255,135,.12); }
+.msg-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: .4rem; gap: .5rem; }
+.msg-sender { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.msg-email { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+.msg-time { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); flex-shrink: 0; }
+.msg-subject { font-size: 12px; color: var(--text-secondary); margin-bottom: .3rem; }
+.msg-preview { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.unread-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+
+/* ── NEWSLETTER ─────────────────────────────────── */
+.nl-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1.5rem; }
+.nl-stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; text-align: center; }
+.nl-stat-num { font-family: var(--font-display); font-size: 2rem; margin-bottom: .2rem; }
+.nl-stat-label { font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary); }
+
+/* ── ACTIVITY FEED ──────────────────────────────── */
+.activity-feed { display: flex; flex-direction: column; gap: 1px; }
+.activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.activity-item:last-child { border-bottom: none; }
+.activity-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+.activity-body { flex: 1; min-width: 0; }
+.activity-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+.activity-text strong { color: var(--text-primary); font-weight: 600; }
+.activity-time { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px; }
+.activity-time-col { font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); flex-shrink: 0; white-space: nowrap; margin-top: 2px; }
+
+/* ── SETTINGS ─────────────────────────────────── */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media(max-width:800px) { .settings-grid { grid-template-columns: 1fr; } }
+.settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.5rem; }
+.settings-card h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 1.1rem; display: flex; align-items: center; gap: 8px; }
+
+/* ── TOAST ──────────────────────────────────────── */
+.toast { position: fixed; bottom: 1.75rem; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface-3); border: 1px solid var(--border-bright); border-radius: var(--radius-lg); padding: 9px 18px; font-size: 12px; font-family: var(--font-mono); color: var(--text-primary); z-index: 9999; display: flex; align-items: center; gap: 8px; transition: transform .3s cubic-bezier(.34,1.56,.64,1); pointer-events: none; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+.toast-dot.red { background: var(--red); }
+
+/* ── MODAL ──────────────────────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(8px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 1.5rem; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal { background: var(--surface); border: 1px solid var(--border-bright); border-radius: var(--radius-xl); width: 100%; max-width: 520px; box-shadow: 0 24px 80px rgba(0,0,0,.85); transform: scale(.96) translateY(10px); transition: transform .25s cubic-bezier(.34,1.56,.64,1); position: relative; }
+.modal-overlay.show .modal { transform: scale(1) translateY(0); }
+.modal-header { padding: 1.5rem 1.5rem 0; }
+.modal-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: .3rem; }
+.modal-sub { font-size: 12px; color: var(--text-secondary); }
+.modal-body { padding: 1.25rem 1.5rem 1.5rem; }
+.modal-close { position: absolute; top: 1rem; right: 1rem; width: 28px; height: 28px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 1; transition: all .12s; }
+.modal-close:hover { background: var(--surface-2); color: var(--text-primary); }
+.modal-footer { display: flex; gap: 8px; margin-top: 1.25rem; }
+
+/* ── MISC ───────────────────────────────────────── */
+.section-divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+.empty-state { text-align: center; padding: 3rem 2rem; color: var(--text-muted); }
+.empty-state-icon { font-size: 2rem; margin-bottom: .75rem; opacity: .4; }
+.empty-state-text { font-size: 13px; color: var(--text-secondary); }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN GATE ─────────────────────────── -->
+<div class="login-gate" id="login-gate">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-mark">F</div>
+      <span class="login-logo-text">folio</span>
+    </div>
+    <div class="login-title">Admin access</div>
+    <div class="login-sub">// restricted · mario@folio.so only</div>
+    <input class="login-input" type="email" id="lg-email" placeholder="admin email" autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('lg-pw').focus()">
+    <input class="login-input" type="password" id="lg-pw" placeholder="admin password" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()">
+    <button class="login-btn" onclick="adminLogin()">Enter admin panel →</button>
+    <div class="login-error" id="login-error">Incorrect credentials. Try: admin / folio2025</div>
+    <div class="login-hint">Demo credentials: admin@folio.so / folio2025</div>
+  </div>
+</div>
+
+<!-- ── APP SHELL ──────────────────────────── -->
+<div class="app" id="app-shell" style="display:none">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="t-logo">
+        <div class="t-logo-mark">F</div>
+        folio
+      </div>
+      <div class="admin-chip">Admin</div>
+    </div>
+    <div class="topbar-right">
+      <div class="t-time" id="clock">--:-- --</div>
+      <div class="t-avatar">MA</div>
+      <button class="t-logout" onclick="adminLogout()">Sign out</button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="sidebar-section">
+      <div class="s-label">Overview</div>
+      <div class="nav-item active" onclick="switchView('dashboard', this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="switchView('analytics', this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Analytics
+      </div>
+    </div>
+
+    <div class="sidebar-div"></div>
+
+    <div class="sidebar-section">
+      <div class="s-label">Content</div>
+      <div class="nav-item" onclick="switchView('content', this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Landing Page
+      </div>
+      <div class="nav-item" onclick="switchView('blog', this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Blog / Updates
+        <span class="nav-badge">2</span>
+      </div>
+      <div class="nav-item" onclick="switchView('changelog', this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Changelog
+      </div>
+    </div>
+
+    <div class="sidebar-div"></div>
+
+    <div class="sidebar-section">
+      <div class="s-label">Users</div>
+      <div class="nav-item" onclick="switchView('users', this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        All Users
+        <span class="nav-badge">47</span>
+      </div>
+      <div class="nav-item" onclick="switchView('invites', this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="m3 8 9 6 9-6"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg>
+        Invite Codes
+      </div>
+      <div class="nav-item" onclick="switchView('messages', this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+        <span class="nav-badge alert">5</span>
+      </div>
+      <div class="nav-item" onclick="switchView('newsletter', this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Newsletter
+        <span class="nav-badge">128</span>
+      </div>
+    </div>
+
+    <div class="sidebar-div"></div>
+
+    <div class="sidebar-section">
+      <div class="s-label">System</div>
+      <div class="nav-item" onclick="switchView('settings', this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </div>
+      <div class="nav-item" onclick="window.open('index.html','_blank')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Site ↗
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ══ DASHBOARD ══════════════════════════════ -->
+    <div class="view active" id="view-dashboard">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Dashboard</div>
+          <div class="ph-meta">// Wednesday, May 13, 2025 · Beta v0.1</div>
+        </div>
+        <div class="ph-actions">
+          <button class="btn btn-ghost" onclick="showToast('Refreshing data...')">↻ Refresh</button>
+          <button class="btn btn-primary" onclick="openModal('quick-add')">+ Quick add</button>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon">👥</div>
+          <div class="stat-card-label">Total users</div>
+          <div class="stat-card-value stat-accent" id="stat-users">47</div>
+          <div class="stat-card-delta delta-up">↑ 12 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">🗄️</div>
+          <div class="stat-card-label">Vault records</div>
+          <div class="stat-card-value stat-blue">1,284</div>
+          <div class="stat-card-delta delta-up">↑ 89 today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">👁️</div>
+          <div class="stat-card-label">Profile views (30d)</div>
+          <div class="stat-card-value stat-gold">3,471</div>
+          <div class="stat-card-delta delta-up">↑ 24% vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">✉️</div>
+          <div class="stat-card-label">Newsletter subs</div>
+          <div class="stat-card-value stat-purple">128</div>
+          <div class="stat-card-delta delta-up">↑ 18 this week</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Signups — last 14 days</div>
+              <div class="chart-sub">Daily new user registrations</div>
+            </div>
+            <div class="badge badge-green">Live</div>
+          </div>
+          <div class="bar-chart-wrap">
+            <div class="bar-chart" id="signup-chart"></div>
+            <div style="display:flex;gap:3px;margin-top:5px" id="signup-labels"></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">User breakdown</div>
+              <div class="chart-sub">By signup method</div>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <svg class="donut" width="90" height="90" viewBox="0 0 90 90">
+              <circle cx="45" cy="45" r="35" fill="none" stroke="var(--surface-3)" stroke-width="10"/>
+              <circle cx="45" cy="45" r="35" fill="none" stroke="#00cc6a" stroke-width="10" stroke-dasharray="88 132" stroke-dashoffset="0"/>
+              <circle cx="45" cy="45" r="35" fill="none" stroke="#4488ff" stroke-width="10" stroke-dasharray="44 176" stroke-dashoffset="-88"/>
+              <circle cx="45" cy="45" r="35" fill="none" stroke="#a855f7" stroke-width="10" stroke-dasharray="26 194" stroke-dashoffset="-132"/>
+              <circle cx="45" cy="45" r="35" fill="none" stroke="#c8a96e" stroke-width="10" stroke-dasharray="22 198" stroke-dashoffset="-158"/>
+            </svg>
+            <div class="donut-segments">
+              <div class="donut-seg"><div class="donut-dot" style="background:#00cc6a"></div>Email<div class="donut-pct">40%</div></div>
+              <div class="donut-seg"><div class="donut-dot" style="background:#4488ff"></div>Google<div class="donut-pct">20%</div></div>
+              <div class="donut-seg"><div class="donut-dot" style="background:#a855f7"></div>GitHub<div class="donut-pct">12%</div></div>
+              <div class="donut-seg"><div class="donut-dot" style="background:#c8a96e"></div>Microsoft<div class="donut-pct">10%</div></div>
+              <div class="donut-seg"><div class="donut-dot" style="background:var(--surface-3)"></div>Other<div class="donut-pct">18%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent activity + Geo -->
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Recent activity</div>
+            <button class="btn btn-ghost btn-sm">View all</button>
+          </div>
+          <div class="activity-feed">
+            <div class="activity-item"><div class="activity-icon" style="background:var(--accent-dim)">✦</div><div class="activity-body"><div class="activity-text"><strong>@destiny-m</strong> completed onboarding — vault has 8 records</div><div class="activity-time">2 min ago</div></div></div>
+            <div class="activity-item"><div class="activity-icon" style="background:var(--blue-dim)">📧</div><div class="activity-body"><div class="activity-text"><strong>recruiter@stripe.com</strong> sent a contact message to @sarah-kim</div><div class="activity-time">14 min ago</div></div></div>
+            <div class="activity-item"><div class="activity-icon" style="background:var(--gold-dim)">🗄️</div><div class="activity-body"><div class="activity-text"><strong>@marcos-v</strong> generated a tailored resume for Linear job target</div><div class="activity-time">31 min ago</div></div></div>
+            <div class="activity-item"><div class="activity-icon" style="background:var(--purple-dim)">🔑</div><div class="activity-body"><div class="activity-text">New signup via invite code <span style="font-family:var(--font-mono);color:var(--accent-text)">FOLIO-BETA</span> — @jordan-new</div><div class="activity-time">1h ago</div></div></div>
+            <div class="activity-item"><div class="activity-icon" style="background:var(--red-dim)">💚</div><div class="activity-body"><div class="activity-text"><strong>Anonymous</strong> donated $25 via Cash App</div><div class="activity-time">2h ago</div></div></div>
+            <div class="activity-item"><div class="activity-icon" style="background:var(--accent-dim)">✦</div><div class="activity-body"><div class="activity-text"><strong>@priya-design</strong> added 3 new skills and updated her README</div><div class="activity-time">3h ago</div></div></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Top locations</div>
+            <div class="chart-sub">Profile views by city</div>
+          </div>
+          <div class="geo-list">
+            <div class="geo-row"><div class="geo-label">New York</div><div class="geo-bar-wrap"><div class="geo-bar" style="width:72%"></div></div><div class="geo-pct">72%</div></div>
+            <div class="geo-row"><div class="geo-label">San Francisco</div><div class="geo-bar-wrap"><div class="geo-bar" style="width:58%"></div></div><div class="geo-pct">58%</div></div>
+            <div class="geo-row"><div class="geo-label">Remote</div><div class="geo-bar-wrap"><div class="geo-bar" style="width:45%"></div></div><div class="geo-pct">45%</div></div>
+            <div class="geo-row"><div class="geo-label">Austin</div><div class="geo-bar-wrap"><div class="geo-bar" style="width:32%"></div></div><div class="geo-pct">32%</div></div>
+            <div class="geo-row"><div class="geo-label">Chicago</div><div class="geo-bar-wrap"><div class="geo-bar" style="width:24%"></div></div><div class="geo-pct">24%</div></div>
+            <div class="geo-row"><div class="geo-label">Boston</div><div class="geo-bar-wrap"><div class="geo-bar" style="width:18%"></div></div><div class="geo-pct">18%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ANALYTICS ══════════════════════════════ -->
+    <div class="view" id="view-analytics">
+      <div class="ph">
+        <div><div class="ph-title">Analytics</div><div class="ph-meta">// last 30 days · Beta period</div></div>
+        <div class="ph-actions">
+          <select class="form-select" style="width:150px" onchange="showToast('Range updated')">
+            <option>Last 7 days</option>
+            <option selected>Last 30 days</option>
+            <option>Last 90 days</option>
+            <option>All time</option>
+          </select>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-card-icon">👁️</div><div class="stat-card-label">Total profile views</div><div class="stat-card-value stat-accent">3,471</div><div class="stat-card-delta delta-up">↑ 24% vs prev period</div></div>
+        <div class="stat-card"><div class="stat-card-icon">⚡</div><div class="stat-card-label">AI generations</div><div class="stat-card-value stat-blue">892</div><div class="stat-card-delta delta-up">↑ 41% vs prev period</div></div>
+        <div class="stat-card"><div class="stat-card-icon">📄</div><div class="stat-card-label">PDFs downloaded</div><div class="stat-card-value stat-gold">214</div><div class="stat-card-delta delta-up">↑ 8% vs prev period</div></div>
+        <div class="stat-card"><div class="stat-card-icon">📊</div><div class="stat-card-label">Avg vault completeness</div><div class="stat-card-value stat-purple">68<span style="font-size:1.5rem">%</span></div><div class="stat-card-delta delta-up">↑ 4pts vs prev period</div></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:14px">
+        <div class="chart-header"><div class="chart-title">Profile views — 30 day trend</div></div>
+        <div class="bar-chart-wrap">
+          <div class="bar-chart" id="views-chart" style="height:120px"></div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">Top profiles by views</div>
+        </div>
+        <table>
+          <thead><tr><th>Handle</th><th>Name</th><th>Views (30d)</th><th>Open to work</th><th>Completeness</th></tr></thead>
+          <tbody>
+            <tr><td class="td-handle">@sarah-kim</td><td class="td-bold">Sarah Kim</td><td class="td-mono">847</td><td><span class="badge badge-green">Yes</span></td><td class="td-mono">91%</td></tr>
+            <tr><td class="td-handle">@marcus-dev</td><td class="td-bold">Marcus Diallo</td><td class="td-mono">612</td><td><span class="badge badge-green">Yes</span></td><td class="td-mono">84%</td></tr>
+            <tr><td class="td-handle">@priya-design</td><td class="td-bold">Priya Patel</td><td class="td-mono">441</td><td><span class="badge badge-green">Yes</span></td><td class="td-mono">78%</td></tr>
+            <tr><td class="td-handle">@elena-k</td><td class="td-bold">Elena Kim</td><td class="td-mono">387</td><td><span class="badge badge-gray">No</span></td><td class="td-mono">72%</td></tr>
+            <tr><td class="td-handle">@destiny-m</td><td class="td-bold">Destiny Moore</td><td class="td-mono">291</td><td><span class="badge badge-green">Yes</span></td><td class="td-mono">61%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ CONTENT — LANDING ══════════════════════ -->
+    <div class="view" id="view-content">
+      <div class="ph">
+        <div><div class="ph-title">Landing Page</div><div class="ph-meta">// index.html · live content editor</div></div>
+        <div class="ph-actions">
+          <button class="btn btn-ghost" onclick="showToast('Preview opened in new tab')">Preview</button>
+          <button class="btn btn-primary" onclick="showToast('✦ Changes saved to index.html')">Save changes</button>
+        </div>
+      </div>
+      <div class="editor-layout">
+        <div>
+          <div class="editor-card" style="margin-bottom:14px">
+            <div class="editor-toolbar">
+              <span style="font-size:11px;font-family:var(--font-mono);color:var(--text-muted)">Hero Section</span>
+              <div class="toolbar-sep"></div>
+              <button class="toolbar-btn" onclick="showToast('Bold')"><strong>B</strong></button>
+              <button class="toolbar-btn" onclick="showToast('Italic')"><em>I</em></button>
+              <button class="toolbar-btn" onclick="showToast('Link')">🔗</button>
+              <div class="toolbar-sep"></div>
+              <button class="toolbar-btn" onclick="showToast('H1')">H1</button>
+              <button class="toolbar-btn" onclick="showToast('H2')">H2</button>
+            </div>
+            <div style="padding:1rem">
+              <div class="form-group"><label class="form-label">Hero headline</label><input class="form-input" type="text" value="Your handle is your resume." placeholder="Hero headline"></div>
+              <div class="form-group"><label class="form-label">Hero subheadline</label><textarea class="form-textarea-sm" placeholder="Subheadline text">One URL. Your whole career. Richer than a PDF, smarter than a LinkedIn profile — and it's always yours.</textarea></div>
+              <div class="form-group"><label class="form-label">Primary CTA button text</label><input class="form-input" type="text" value="Claim your handle — it's free"></div>
+              <div class="form-group"><label class="form-label">Secondary CTA text</label><input class="form-input" type="text" value="See how it works"></div>
+            </div>
+          </div>
+          <div class="editor-card" style="margin-bottom:14px">
+            <div style="padding:1rem">
+              <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:1rem">About Section (Mario's Bio)</div>
+              <div class="form-group"><label class="form-label">Display name</label><input class="form-input" type="text" value="Mario A. Espindola"></div>
+              <div class="form-group"><label class="form-label">Credentials line</label><input class="form-input" type="text" value="MPA · IPMA-CP · Product Builder · Public Sector Strategist"></div>
+              <div class="form-group"><label class="form-label">Bio (paragraph 1)</label><textarea class="form-textarea-sm">I built FOLIO because I watched people — brilliant, capable, hardworking people — get filtered out by systems designed to process them, not see them.</textarea></div>
+              <div class="form-group"><label class="form-label">Bio (paragraph 2)</label><textarea class="form-textarea-sm">I have a background in public administration, program management, and technology — and I built FOLIO to be the tool I wish existed when I was navigating career transitions myself.</textarea></div>
+            </div>
+          </div>
+          <div class="editor-card">
+            <div style="padding:1rem">
+              <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:1rem">Beta Disclaimer</div>
+              <textarea class="form-textarea-sm" style="min-height:120px">FOLIO is currently in closed beta. You are using an early version of the software that may have bugs, incomplete features, and unexpected behavior. Your participation helps make the product better for everyone.</textarea>
+              <div class="form-group" style="margin-top:.75rem"><label class="form-label">Show disclaimer on page</label>
+                <div class="toggle-row" style="border:none;padding:0"><span class="toggle-label">Disclaimer visible</span><button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="sidebar-card">
+            <div class="sidebar-card-title">📤 Publish settings</div>
+            <div class="toggle-row"><span class="toggle-label">Beta banner visible</span><button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+            <div class="toggle-row"><span class="toggle-label">Signups open</span><button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+            <div class="toggle-row"><span class="toggle-label">Support page live</span><button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+            <div class="toggle-row"><span class="toggle-label">Discover page indexed</span><button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+          </div>
+          <div class="sidebar-card">
+            <div class="sidebar-card-title">🎨 Theme</div>
+            <div class="form-group"><label class="form-label">Accent color</label>
+              <div style="display:flex;gap:6px">
+                <div onclick="showToast('Accent: Electric Green')" style="width:24px;height:24px;border-radius:50%;background:#00ff87;border:2px solid var(--text-primary);cursor:pointer"></div>
+                <div onclick="showToast('Accent: Electric Blue')" style="width:24px;height:24px;border-radius:50%;background:#4488ff;cursor:pointer;border:2px solid transparent"></div>
+                <div onclick="showToast('Accent: Gold')" style="width:24px;height:24px;border-radius:50%;background:#c8a96e;cursor:pointer;border:2px solid transparent"></div>
+                <div onclick="showToast('Accent: Purple')" style="width:24px;height:24px;border-radius:50%;background:#a855f7;cursor:pointer;border:2px solid transparent"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sidebar-card">
+            <div class="sidebar-card-title">🔗 Key links</div>
+            <div class="form-group"><label class="form-label">GitHub URL</label><input class="form-input" type="url" value="https://github.com/folio-so/folio"></div>
+            <div class="form-group"><label class="form-label">Contact email</label><input class="form-input" type="email" value="mario@folio.so"></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="showToast('✦ All changes saved')">Save all changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BLOG ══════════════════════════════════ -->
+    <div class="view" id="view-blog">
+      <div class="ph">
+        <div><div class="ph-title">Blog / Updates</div><div class="ph-meta">// 2 draft posts · 0 published</div></div>
+        <div class="ph-actions">
+          <button class="btn btn-primary" onclick="openModal('new-post')">+ New post</button>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">All posts</div>
+          <div class="table-actions"><input class="search-input" placeholder="Search posts..." oninput="showToast('Searching...')"></div>
+        </div>
+        <table>
+          <thead><tr><th>Title</th><th>Status</th><th>Category</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="td-bold">How to build a career profile with no work experience</td>
+              <td><span class="badge badge-gold">Draft</span></td>
+              <td class="td-mono">Guide</td>
+              <td class="td-mono">May 10</td>
+              <td><div class="td-actions"><button class="btn btn-icon btn-sm" onclick="showToast('Opening editor...')">✎</button><button class="btn btn-ghost btn-sm" onclick="showToast('Published!')">Publish</button><button class="btn btn-icon btn-sm btn-danger" onclick="showToast('Deleted')">✕</button></div></td>
+            </tr>
+            <tr>
+              <td class="td-bold">The resume is dead. Here's what's replacing it.</td>
+              <td><span class="badge badge-gold">Draft</span></td>
+              <td class="td-mono">Opinion</td>
+              <td class="td-mono">May 8</td>
+              <td><div class="td-actions"><button class="btn btn-icon btn-sm" onclick="showToast('Opening editor...')">✎</button><button class="btn btn-ghost btn-sm" onclick="showToast('Published!')">Publish</button><button class="btn btn-icon btn-sm btn-danger" onclick="showToast('Deleted')">✕</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ CHANGELOG ══════════════════════════════ -->
+    <div class="view" id="view-changelog">
+      <div class="ph">
+        <div><div class="ph-title">Changelog</div><div class="ph-meta">// public release notes</div></div>
+        <div class="ph-actions"><button class="btn btn-primary" onclick="openModal('new-changelog')">+ Add entry</button></div>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><div class="table-title">Release history</div></div>
+        <table>
+          <thead><tr><th>Version</th><th>Date</th><th>Summary</th><th>Type</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="td-mono td-bold">v0.1.0</td><td class="td-mono">May 13, 2025</td><td>Initial beta launch — vault, profile, AI chat, gap analysis, onboarding</td><td><span class="badge badge-purple">Launch</span></td><td><div class="td-actions"><button class="btn btn-icon btn-sm" onclick="showToast('Editing changelog...')">✎</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ USERS ══════════════════════════════════ -->
+    <div class="view" id="view-users">
+      <div class="ph">
+        <div><div class="ph-title">Users</div><div class="ph-meta">// 47 beta testers</div></div>
+        <div class="ph-actions">
+          <button class="btn btn-ghost" onclick="showToast('Exporting CSV...')">↓ Export CSV</button>
+          <button class="btn btn-primary" onclick="openModal('invite-user')">+ Invite user</button>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">All users <span class="badge badge-blue" style="margin-left:8px">Beta</span></div>
+          <div class="table-actions">
+            <input class="search-input" placeholder="Search by name or handle..." oninput="filterUsers(this.value)">
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Handle</th><th>Name</th><th>Email</th><th>Plan</th><th>Vault</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="users-tbody">
+            <tr><td class="td-handle">@sarah-kim</td><td class="td-bold">Sarah Kim</td><td class="td-mono">sarah@example.com</td><td><span class="badge badge-green">Free</span></td><td class="td-mono">29 records</td><td class="td-mono">May 1</td><td><div class="td-actions"><button class="btn btn-icon btn-sm" onclick="showToast('Viewing @sarah-kim...')">👁</button><button class="btn btn-icon btn-sm btn-danger" onclick="showToast('User suspended')">⊘</button></div></td></tr>
+            <tr><td class="td-handle">@marcus-dev</td><td class="td-bold">Marcus Diallo</td><td class="td-mono">marcus@example.com</td><td><span class="badge badge-green">Free</span></td><td class="td-mono">22 records</td><td class="td-mono">May 3</td><td><div class="td-actions"><button class="btn btn-icon btn-sm" onclick="showToast('Viewing @marcus-dev...')">👁</button><button class="btn btn-icon btn-sm btn-danger" onclick="showToast('User suspended')">⊘</button></div></td></tr>
+            <tr><td class="td-handle">@destiny-m</td><td class="td-bold">Destiny Moore</td><td class="td-mono">destiny@example.com</td><td><span class="badge badge-green">Free</span></td><td class="td-mono">8 records</td><td class="td-mono">May 11</td><td><div class="td-actions"><button class="btn btn-icon btn-sm" onclick="showToast('Viewing @destiny-m...')">👁</button><button class="btn btn-icon btn-sm btn-danger" onclick="showToast('User suspended')">⊘</button></div></td></tr>
+            <tr><td class="td-handle">@priya-design</td><td class="td-bold">Priya Patel</td><td class="td-mono">priya@example.com</td><td><span class="badge badge-green">Free</span></td><td class="td-mono">18 records</td><td class="td-mono">May 5</td><td><div class="td-actions"><button class="btn btn-icon btn-sm">👁</button><button class="btn btn-icon btn-sm btn-danger">⊘</button></div></td></tr>
+            <tr><td class="td-handle">@elena-k</td><td class="td-bold">Elena Kim</td><td class="td-mono">elena@example.com</td><td><span class="badge badge-green">Free</span></td><td class="td-mono">14 records</td><td class="td-mono">May 7</td><td><div class="td-actions"><button class="btn btn-icon btn-sm">👁</button><button class="btn btn-icon btn-sm btn-danger">⊘</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ INVITE CODES ═══════════════════════════ -->
+    <div class="view" id="view-invites">
+      <div class="ph">
+        <div><div class="ph-title">Invite Codes</div><div class="ph-meta">// beta access control</div></div>
+        <div class="ph-actions">
+          <button class="btn btn-primary" onclick="openModal('new-invite')">+ Generate codes</button>
+        </div>
+      </div>
+      <div class="codes-grid" id="codes-grid"></div>
+      <div class="section-divider"></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:1.5rem">
+        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:.75rem">Bulk invite via email</div>
+        <div class="form-group"><label class="form-label">Email addresses (one per line)</label><textarea class="form-textarea-sm" style="min-height:100px;font-family:var(--font-mono);font-size:12px" placeholder="friend1@email.com&#10;friend2@email.com&#10;tester@company.com"></textarea></div>
+        <div class="form-group"><label class="form-label">Invite message (optional)</label><textarea class="form-textarea-sm" placeholder="Hey! I built FOLIO and I'd love for you to try it out. Use your invite code at folio.so to sign up..."></textarea></div>
+        <button class="btn btn-primary" onclick="showToast('Invites sent — in production this sends real emails via Resend')">Send invites →</button>
+      </div>
+    </div>
+
+    <!-- ══ MESSAGES ═══════════════════════════════ -->
+    <div class="view" id="view-messages">
+      <div class="ph">
+        <div><div class="ph-title">Messages</div><div class="ph-meta">// contact form + recruiter messages</div></div>
+        <div class="ph-actions"><button class="btn btn-ghost" onclick="showToast('All marked as read')">Mark all read</button></div>
+      </div>
+      <div class="message-list" id="messages-list"></div>
+    </div>
+
+    <!-- ══ NEWSLETTER ══════════════════════════════ -->
+    <div class="view" id="view-newsletter">
+      <div class="ph">
+        <div><div class="ph-title">Newsletter</div><div class="ph-meta">// 128 subscribers · 0 unsubscribes</div></div>
+        <div class="ph-actions">
+          <button class="btn btn-ghost" onclick="showToast('Exporting subscriber list...')">↓ Export</button>
+          <button class="btn btn-primary" onclick="openModal('compose-email')">✉ Compose update</button>
+        </div>
+      </div>
+      <div class="nl-stats">
+        <div class="nl-stat"><div class="nl-stat-num stat-accent">128</div><div class="nl-stat-label">Total subscribers</div></div>
+        <div class="nl-stat"><div class="nl-stat-num stat-blue">0</div><div class="nl-stat-label">Emails sent</div></div>
+        <div class="nl-stat"><div class="nl-stat-num stat-gold">—</div><div class="nl-stat-label">Avg open rate</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">Subscribers</div>
+          <div class="table-actions"><input class="search-input" placeholder="Search subscribers..."></div>
+        </div>
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Subscribed</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td class="td-bold">Jordan Rivera</td><td class="td-mono">jordan@example.com</td><td class="td-mono">Job seeker</td><td class="td-mono">May 12</td><td><div class="td-actions"><button class="btn btn-icon btn-sm btn-danger" onclick="showToast('Unsubscribed')">✕</button></div></td></tr>
+            <tr><td class="td-bold">Aisha Okonkwo</td><td class="td-mono">aisha@example.com</td><td class="td-mono">Career changer</td><td class="td-mono">May 11</td><td><div class="td-actions"><button class="btn btn-icon btn-sm btn-danger" onclick="showToast('Unsubscribed')">✕</button></div></td></tr>
+            <tr><td class="td-bold">Sam Liu</td><td class="td-mono">sam@stanford.edu</td><td class="td-mono">Student / Recent grad</td><td class="td-mono">May 10</td><td><div class="td-actions"><button class="btn btn-icon btn-sm btn-danger" onclick="showToast('Unsubscribed')">✕</button></div></td></tr>
+            <tr><td class="td-bold">Recruiting Co.</td><td class="td-mono">hr@corp.com</td><td class="td-mono">Recruiter / Hiring mgr</td><td class="td-mono">May 9</td><td><div class="td-actions"><button class="btn btn-icon btn-sm btn-danger" onclick="showToast('Unsubscribed')">✕</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS ════════════════════════════════ -->
+    <div class="view" id="view-settings">
+      <div class="ph"><div class="ph-title">Settings</div><div class="ph-meta">// site config · admin · integrations</div></div>
+      <div class="settings-grid">
+        <div class="settings-card">
+          <h3>🔐 Admin credentials</h3>
+          <div class="form-group"><label class="form-label">Admin email</label><input class="form-input" type="email" value="mario@folio.so"></div>
+          <div class="form-group"><label class="form-label">New password</label><input class="form-input" type="password" placeholder="Leave blank to keep current"></div>
+          <div class="form-group"><label class="form-label">Confirm password</label><input class="form-input" type="password" placeholder="Confirm new password"></div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('Credentials updated')">Update credentials</button>
+        </div>
+        <div class="settings-card">
+          <h3>📧 Contact info</h3>
+          <div class="form-group"><label class="form-label">Contact email</label><input class="form-input" type="email" value="mario@folio.so"></div>
+          <div class="form-group"><label class="form-label">Cash App handle</label><input class="form-input" type="text" value="$MarioEspindola" style="font-family:var(--font-mono)"></div>
+          <div class="form-group"><label class="form-label">Venmo handle</label><input class="form-input" type="text" value="@Mario-Espindola" style="font-family:var(--font-mono)"></div>
+          <div class="form-group"><label class="form-label">Zelle email</label><input class="form-input" type="email" value="mario@folio.so" style="font-family:var(--font-mono)"></div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('Contact info saved')">Save</button>
+        </div>
+        <div class="settings-card">
+          <h3>🚀 Feature flags</h3>
+          <div class="toggle-row"><span class="toggle-label">Beta mode (invite required)</span><button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+          <div class="toggle-row"><span class="toggle-label">New signups open</span><button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+          <div class="toggle-row"><span class="toggle-label">Discover page live</span><button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+          <div class="toggle-row"><span class="toggle-label">AI features enabled</span><button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+          <div class="toggle-row"><span class="toggle-label">Donation page live</span><button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+          <div class="toggle-row"><span class="toggle-label">Maintenance mode</span><button class="toggle off" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button></div>
+        </div>
+        <div class="settings-card">
+          <h3>🔗 Integrations</h3>
+          <div class="form-group"><label class="form-label">Resend API key (email)</label><input class="form-input" type="password" value="re_xxxxxxxxxxxxxxxx"></div>
+          <div class="form-group"><label class="form-label">Anthropic API key (AI)</label><input class="form-input" type="password" value="sk-ant-xxxxxxxxxxxx"></div>
+          <div class="form-group"><label class="form-label">Stripe secret key</label><input class="form-input" type="password" value="sk_live_xxxxxxxx"></div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('API keys saved — encrypted at rest')">Save keys</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── MODALS ──────────────────────────── -->
+<div class="modal-overlay" id="modal" onclick="closeModalOnOverlay(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Quick Add</div>
+      <div class="modal-sub" id="modal-sub">Create content quickly</div>
+    </div>
+    <div class="modal-body" id="modal-body"><!-- dynamic --></div>
+  </div>
+</div>
+
+<!-- ── TOAST ────────────────────────────── -->
+<div class="toast" id="toast"><div class="toast-dot" id="toast-dot"></div><span id="toast-msg"></span></div>
+
+<script>
+/* ── LOGIN ── */
+const ADMIN_EMAIL = 'admin@folio.so';
+const ADMIN_PW = 'folio2025';
+
+function adminLogin() {
+  const email = document.getElementById('lg-email').value.trim().toLowerCase();
+  const pw = document.getElementById('lg-pw').value;
+  const err = document.getElementById('login-error');
+  if(email === ADMIN_EMAIL && pw === ADMIN_PW) {
+    document.getElementById('login-gate').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'grid';
+    startClock();
+    initDashboard();
+    showToast('Welcome back, Mario ✦');
+  } else {
+    err.classList.add('show');
+    document.getElementById('lg-pw').value = '';
+    document.getElementById('lg-pw').focus();
+    setTimeout(() => err.classList.remove('show'), 3000);
+  }
+}
+
+function adminLogout() {
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('login-gate').style.display = 'flex';
+  document.getElementById('lg-email').value = '';
+  document.getElementById('lg-pw').value = '';
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && document.getElementById('login-gate').style.display !== 'none') adminLogin();
+});
+
+/* ── CLOCK ── */
+function startClock() {
+  function tick() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+/* ── VIEW ROUTER ── */
+function switchView(id, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+/* ── DASHBOARD INIT ── */
+function initDashboard() {
+  buildSignupChart();
+  buildViewsChart();
+  buildInviteCodes();
+  buildMessages();
+}
+
+function buildSignupChart() {
+  const data = [1,3,2,5,4,7,3,6,8,5,4,9,6,12];
+  const days = ['M','T','W','T','F','S','S','M','T','W','T','F','S','T'];
+  const chart = document.getElementById('signup-chart');
+  const labels = document.getElementById('signup-labels');
+  const max = Math.max(...data);
+  if(!chart) return;
+  chart.innerHTML = data.map((v,i) => `<div class="bar ${i===data.length-1?'today':''}" style="height:${Math.max(8, (v/max)*76)}px" title="${v} signups" onclick="showToast('${v} signups on this day')"></div>`).join('');
+  labels.innerHTML = days.map(d => `<div class="bar-label" style="flex:1">${d}</div>`).join('');
+}
+
+function buildViewsChart() {
+  const data = [82,95,74,110,88,140,120,98,130,115,145,160,138,175,162,188,170,195,210,185,220,240,215,245,228,260,242,270,255,280];
+  const chart = document.getElementById('views-chart');
+  if(!chart) return;
+  const max = Math.max(...data);
+  chart.innerHTML = data.map((v,i) => `<div class="bar ${i===data.length-1?'today':''}" style="height:${Math.max(6,(v/max)*115)}px" title="${v} views"></div>`).join('');
+}
+
+function buildInviteCodes() {
+  const codes = [
+    { code: 'FOLIO-BETA', uses: 18, max: 999, status: 'active' },
+    { code: 'FOLIO-2025', uses: 7, max: 50, status: 'active' },
+    { code: 'MARIO-TEST', uses: 4, max: 10, status: 'active' },
+    { code: 'EARLY-ACCESS', uses: 12, max: 25, status: 'active' },
+    { code: 'LAUNCH-2025', uses: 3, max: 20, status: 'active' },
+    { code: 'BUILDER-1', uses: 1, max: 5, status: 'active' },
+    { code: 'BUILDER-2', uses: 0, max: 5, status: 'unused' },
+    { code: 'FOLIO-TEST', uses: 2, max: 10, status: 'active' },
+  ];
+  const grid = document.getElementById('codes-grid');
+  if(!grid) return;
+  grid.innerHTML = codes.map(c => `
+    <div class="code-card">
+      <div class="code-value">${c.code}</div>
+      <div class="code-meta">${c.uses} / ${c.max === 999 ? '∞' : c.max} uses</div>
+      <div class="code-used">
+        <div style="flex:1;height:3px;background:var(--surface-3);border-radius:100px;overflow:hidden">
+          <div style="height:100%;background:var(--accent-text);width:${c.max===999?'5':Math.round((c.uses/c.max)*100)}%;border-radius:100px"></div>
+        </div>
+        <span class="badge ${c.uses===0?'badge-gray':c.status==='active'?'badge-green':'badge-red'}">${c.uses===0?'Unused':'Active'}</span>
+      </div>
+      <div class="code-card-actions">
+        <button class="btn btn-ghost btn-sm" onclick="copyToClipboard('${c.code}')">Copy</button>
+        <button class="btn btn-icon btn-sm btn-danger" onclick="showToast('Code revoked: ${c.code}')">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function buildMessages() {
+  const msgs = [
+    { sender: 'Alex Thompson', email: 'alex@figma.com', company: 'Figma', subject: 'Interested in connecting', preview: "Hi Mario, I came across FOLIO and I'm really impressed by what you're building...", time: '2h ago', unread: true },
+    { sender: 'Sarah Johnson', email: 'sarah@vc.com', company: 'Sequoia Capital', subject: 'Angel investment interest', preview: "We've been watching the resume-replacement space and FOLIO caught our attention...", time: '5h ago', unread: true },
+    { sender: 'Jordan Rivera', email: 'jordan@example.com', company: 'Beta tester', subject: 'Feedback from beta testing', preview: "I've been using FOLIO for a week now and have a few suggestions...", time: '1d ago', unread: true },
+    { sender: 'Maria Chen', email: 'maria@bootcamp.io', company: 'CodeBootcamp', subject: 'Partnership opportunity', preview: "We run a coding bootcamp with 300 students graduating each quarter...", time: '2d ago', unread: false },
+    { sender: 'Dev Kumar', email: 'dev@example.com', company: 'Beta tester', subject: 'Found a bug in onboarding', preview: "On step 3 of the onboarding wizard, the skill suggestions don't populate when...", time: '3d ago', unread: false },
+  ];
+  const list = document.getElementById('messages-list');
+  if(!list) return;
+  list.innerHTML = msgs.map(m => `
+    <div class="message-card ${m.unread?'unread':''}" onclick="openMessageModal('${m.sender}','${m.email}','${m.subject}','${m.preview}')">
+      <div class="msg-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${m.unread ? '<div class="unread-dot"></div>' : ''}
+            <div class="msg-sender">${m.sender}</div>
+          </div>
+          <div class="msg-email">${m.email} · ${m.company}</div>
+        </div>
+        <div class="msg-time">${m.time}</div>
+      </div>
+      <div class="msg-subject">${m.subject}</div>
+      <div class="msg-preview">${m.preview}</div>
+    </div>
+  `).join('');
+}
+
+/* ── MODALS ── */
+const modalContents = {
+  'quick-add': {
+    title: 'Quick add content',
+    sub: 'Jump to any content creation flow',
+    body: `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;padding:1rem;height:auto;flex-direction:column;align-items:flex-start" onclick="closeModal();switchView('blog',document.querySelector('[onclick*=\"blog\"]'))">
+          <span style="font-size:1.4rem">📝</span>
+          <div><div style="font-weight:700;color:var(--text-primary)">Blog post</div><div style="font-size:11px;font-family:var(--font-mono);margin-top:2px">Write a new update</div></div>
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;padding:1rem;height:auto;flex-direction:column;align-items:flex-start" onclick="closeModal();switchView('invites',document.querySelector('[onclick*=\"invites\"]'));openModal('new-invite')">
+          <span style="font-size:1.4rem">🔑</span>
+          <div><div style="font-weight:700;color:var(--text-primary)">Invite code</div><div style="font-size:11px;font-family:var(--font-mono);margin-top:2px">Generate new codes</div></div>
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;padding:1rem;height:auto;flex-direction:column;align-items:flex-start" onclick="closeModal();openModal('compose-email')">
+          <span style="font-size:1.4rem">✉️</span>
+          <div><div style="font-weight:700;color:var(--text-primary)">Newsletter</div><div style="font-size:11px;font-family:var(--font-mono);margin-top:2px">Compose an update</div></div>
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;padding:1rem;height:auto;flex-direction:column;align-items:flex-start" onclick="closeModal();openModal('new-changelog')">
+          <span style="font-size:1.4rem">🚀</span>
+          <div><div style="font-weight:700;color:var(--text-primary)">Changelog</div><div style="font-size:11px;font-family:var(--font-mono);margin-top:2px">Log a release</div></div>
+        </button>
+      </div>
+    `
+  },
+  'new-post': {
+    title: 'New blog post',
+    sub: 'Drafts are saved automatically',
+    body: `
+      <div class="form-group"><label class="form-label">Post title</label><input class="form-input" type="text" placeholder="e.g. The resume is dead. Here's what's replacing it."></div>
+      <div class="form-group"><label class="form-label">Slug</label><input class="form-input" type="text" placeholder="the-resume-is-dead" style="font-family:var(--font-mono)"></div>
+      <div class="form-group"><label class="form-label">Category</label><select class="form-select form-input"><option>Guide</option><option>Opinion</option><option>Update</option><option>Technical</option><option>Case Study</option></select></div>
+      <div class="form-group"><label class="form-label">Summary</label><textarea class="form-textarea-sm" placeholder="One paragraph summary for social sharing..."></textarea></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" style="flex:1" onclick="closeModal();showToast('Post created — opening editor...')">Create draft →</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    `
+  },
+  'new-invite': {
+    title: 'Generate invite codes',
+    sub: 'New codes are active immediately',
+    body: `
+      <div class="form-group"><label class="form-label">Prefix / name</label><input class="form-input" type="text" placeholder="e.g. FRIEND or BATCH2" style="font-family:var(--font-mono);text-transform:uppercase" maxlength="12"></div>
+      <div class="form-group"><label class="form-label">Number of codes</label><input class="form-input" type="number" value="5" min="1" max="100"></div>
+      <div class="form-group"><label class="form-label">Max uses per code</label><input class="form-input" type="number" value="1" min="1"></div>
+      <div class="form-group"><label class="form-label">Expiry</label><select class="form-select form-input"><option>Never</option><option>7 days</option><option>30 days</option><option>90 days</option></select></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" style="flex:1" onclick="closeModal();showToast('5 invite codes generated ✦');initDashboard()">Generate →</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    `
+  },
+  'new-changelog': {
+    title: 'Add changelog entry',
+    sub: 'Published to the public changelog page',
+    body: `
+      <div class="form-group"><label class="form-label">Version</label><input class="form-input" type="text" placeholder="v0.2.0" style="font-family:var(--font-mono)"></div>
+      <div class="form-group"><label class="form-label">Type</label><select class="form-select form-input"><option>Launch</option><option>Feature</option><option>Improvement</option><option>Fix</option><option>Security</option></select></div>
+      <div class="form-group"><label class="form-label">Summary</label><input class="form-input" type="text" placeholder="One-line summary of what changed"></div>
+      <div class="form-group"><label class="form-label">Details (markdown)</label><textarea class="form-textarea-sm" placeholder="- Added X&#10;- Fixed Y&#10;- Improved Z"></textarea></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" style="flex:1" onclick="closeModal();showToast('Changelog entry published ✦')">Publish →</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    `
+  },
+  'compose-email': {
+    title: 'Compose newsletter',
+    sub: '128 subscribers will receive this',
+    body: `
+      <div class="form-group"><label class="form-label">Subject line</label><input class="form-input" type="text" placeholder="FOLIO update: what's new this week..."></div>
+      <div class="form-group"><label class="form-label">Preview text</label><input class="form-input" type="text" placeholder="Shown in email client preview..."></div>
+      <div class="form-group"><label class="form-label">Email body (markdown)</label><textarea class="form-textarea-sm" style="min-height:140px" placeholder="Hey [first_name],&#10;&#10;Here's what's new with FOLIO this week..."></textarea></div>
+      <div class="form-group"><label class="form-label">Send to</label><select class="form-select form-input"><option>All subscribers (128)</option><option>Beta testers only (47)</option><option>Investors only</option><option>Test send (mario@folio.so)</option></select></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal();showToast('Test email sent to mario@folio.so')">Send test</button>
+        <button class="btn btn-primary" style="flex:1" onclick="closeModal();showToast('Newsletter sent to 128 subscribers ✦')">Send now →</button>
+      </div>
+    `
+  },
+  'invite-user': {
+    title: 'Invite a user',
+    sub: 'Send a personal invite with a code',
+    body: `
+      <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" placeholder="friend@email.com"></div>
+      <div class="form-group"><label class="form-label">Name (optional)</label><input class="form-input" type="text" placeholder="Their name"></div>
+      <div class="form-group"><label class="form-label">Assign code</label><select class="form-select form-input"><option>MARIO-TEST</option><option>FOLIO-BETA</option><option>Generate new code</option></select></div>
+      <div class="form-group"><label class="form-label">Personal note (optional)</label><textarea class="form-textarea-sm" placeholder="Hey! I built FOLIO and I'd love for you to try it..."></textarea></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" style="flex:1" onclick="closeModal();showToast('Invite sent ✦')">Send invite →</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    `
+  }
+};
+
+function openModal(id) {
+  const content = modalContents[id];
+  if(!content) return;
+  document.getElementById('modal-title').textContent = content.title;
+  document.getElementById('modal-sub').textContent = content.sub;
+  document.getElementById('modal-body').innerHTML = content.body;
+  document.getElementById('modal').classList.add('show');
+}
+
+function openMessageModal(sender, email, subject, preview) {
+  document.getElementById('modal-title').textContent = subject;
+  document.getElementById('modal-sub').textContent = `From: ${sender} · ${email}`;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.25rem;font-size:13px;color:var(--text-secondary);line-height:1.7">${preview} [Full message would load from the database in production]</div>
+    <div class="form-group"><label class="form-label">Reply</label><textarea class="form-textarea-sm" placeholder="Type your reply..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" style="flex:1" onclick="closeModal();showToast('Reply sent ✦')">Send reply →</button>
+      <button class="btn btn-ghost" onclick="closeModal();showToast('Message archived')">Archive</button>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+function closeModalOnOverlay(e) { if(e.target === document.getElementById('modal')) closeModal(); }
+
+/* ── UTILITIES ── */
+function toggleSwitch(btn) {
+  const isOn = btn.classList.contains('on');
+  btn.classList.toggle('on', !isOn);
+  btn.classList.toggle('off', isOn);
+  showToast(isOn ? 'Feature disabled' : 'Feature enabled');
+}
+
+function copyToClipboard(text) {
+  if(navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast('Copied: ' + text));
+  else showToast('Copied: ' + text);
+}
+
+function filterUsers(q) {
+  const rows = document.querySelectorAll('#users-tbody tr');
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = !q || text.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+let toastTimer;
+function showToast(msg, type='') {
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast-dot').className = 'toast-dot' + (type === 'error' ? ' red' : '');
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => document.getElementById('toast').classList.remove('show'), 3200);
+}
+
+/* ── KEYBOARD ── */
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>

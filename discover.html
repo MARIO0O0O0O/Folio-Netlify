@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discover Talent — FOLIO</title>
+<meta name="description" content="Search and discover professionals on FOLIO. Filter by skill, location, role, and availability. Every profile is live, structured, and human-authored.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #0a0a0a;
+  --surface: #111111;
+  --surface-2: #161616;
+  --surface-3: #1c1c1c;
+  --surface-4: #222222;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,255,255,0.12);
+  --text-primary: #f0ede8;
+  --text-secondary: #888580;
+  --text-muted: #3f3d3b;
+  --accent: #00ff87;
+  --accent-dim: rgba(0,255,135,0.09);
+  --accent-text: #00cc6a;
+  --gold: #c8a96e;
+  --gold-dim: rgba(200,169,110,0.09);
+  --blue: #4488ff;
+  --blue-dim: rgba(68,136,255,0.08);
+  --red: #ff4444;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-ui: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --sidebar-w: 260px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--paper);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* noise */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logo-mark {
+  width: 22px; height: 22px;
+  background: var(--accent);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #000;
+}
+
+.nav-center {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.nav-right { display: flex; align-items: center; gap: 8px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.btn-primary { background: var(--accent); color: #000; border-color: var(--accent); }
+.btn-primary:hover { background: #00e87a; box-shadow: 0 4px 16px rgba(0,255,135,0.2); }
+.btn-ghost { background: transparent; color: var(--text-secondary); border-color: var(--border-bright); }
+.btn-ghost:hover { background: var(--surface); color: var(--text-primary); border-color: rgba(255,255,255,0.2); }
+
+/* ─── HERO STRIP ─── */
+.discover-hero {
+  padding: 3rem 2rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent-text);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-label::before { content: '//'; color: var(--text-muted); }
+
+.discover-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 0.75rem;
+}
+
+.discover-title em { font-style: italic; color: var(--accent); }
+
+.discover-sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 560px;
+  line-height: 1.65;
+  margin-bottom: 2rem;
+}
+
+/* ─── SEARCH BAR ─── */
+.search-wrap {
+  position: relative;
+  max-width: 640px;
+  margin-bottom: 1.5rem;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 13px 50px 13px 44px;
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font-ui);
+  outline: none;
+  transition: all 0.15s;
+}
+
+.search-bar::placeholder { color: var(--text-muted); }
+
+.search-bar:focus {
+  border-color: rgba(0,255,135,0.35);
+  background: var(--surface-2);
+  box-shadow: 0 0 0 3px rgba(0,255,135,0.05);
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-clear {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  display: none;
+  transition: color 0.12s;
+}
+
+.search-clear:hover { color: var(--text-secondary); }
+.search-clear.show { display: block; }
+
+/* Quick filter pills */
+.quick-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.q-pill {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  padding: 5px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--border-bright);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.q-pill:hover {
+  border-color: rgba(0,255,135,0.25);
+  color: var(--accent-text);
+  background: var(--accent-dim);
+}
+
+.q-pill.active {
+  border-color: rgba(0,255,135,0.3);
+  color: var(--accent-text);
+  background: var(--accent-dim);
+}
+
+/* ─── MAIN LAYOUT ─── */
+.discover-layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  gap: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+  position: relative;
+  z-index: 1;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .discover-layout { grid-template-columns: 1fr; }
+  .filter-sidebar { display: none; }
+  .filter-sidebar.mobile-open { display: block; position: fixed; inset: 0; z-index: 200; background: var(--paper); overflow-y: auto; padding: 1.5rem; }
+}
+
+/* ─── FILTER SIDEBAR ─── */
+.filter-sidebar {
+  padding-right: 1.5rem;
+  position: sticky;
+  top: 68px;
+}
+
+.filter-section {
+  margin-bottom: 1.75rem;
+}
+
+.filter-title {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filter-clear {
+  color: var(--accent-text);
+  cursor: pointer;
+  font-size: 10px;
+  display: none;
+  transition: opacity 0.12s;
+}
+
+.filter-clear.show { display: block; }
+
+/* Checkbox filters */
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.filter-option:hover .filter-label { color: var(--text-primary); }
+
+.filter-checkbox {
+  width: 15px; height: 15px;
+  border-radius: 3px;
+  border: 1px solid var(--border-bright);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.12s;
+  font-size: 9px;
+}
+
+.filter-option.checked .filter-checkbox {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+
+.filter-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex: 1;
+  transition: color 0.12s;
+}
+
+.filter-count {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+/* Skill search in filter */
+.filter-skill-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  outline: none;
+  margin-bottom: 8px;
+  transition: border-color 0.12s;
+}
+
+.filter-skill-input::placeholder { color: var(--text-muted); }
+.filter-skill-input:focus { border-color: rgba(0,255,135,0.3); }
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.skill-filter-tag {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--border-bright);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.12s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.skill-filter-tag:hover {
+  border-color: rgba(0,255,135,0.25);
+  color: var(--accent-text);
+}
+
+.skill-filter-tag.selected {
+  border-color: rgba(0,255,135,0.3);
+  background: var(--accent-dim);
+  color: var(--accent-text);
+}
+
+.skill-filter-tag .remove {
+  font-size: 10px;
+  opacity: 0.6;
+  line-height: 1;
+}
+
+/* Divider */
+.filter-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 1.25rem 0;
+}
+
+/* Filter footer */
+.filter-footer {
+  padding-top: 1rem;
+}
+
+/* ─── RESULTS AREA ─── */
+.results-area { min-width: 0; }
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.results-count {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.results-count strong { color: var(--text-primary); }
+
+.results-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Sort select */
+.sort-select {
+  padding: 6px 30px 6px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888580' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.12s;
+}
+
+.sort-select:hover { border-color: rgba(255,255,255,0.2); }
+.sort-select option { background: var(--surface-3); }
+
+/* View toggle */
+.view-toggle {
+  display: flex;
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.view-btn {
+  width: 32px; height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.view-btn.active { background: var(--surface-2); color: var(--text-primary); }
+.view-btn:hover:not(.active) { color: var(--text-secondary); }
+
+/* Active filters strip */
+.active-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid rgba(0,255,135,0.2);
+  background: var(--accent-dim);
+  color: var(--accent-text);
+  cursor: pointer;
+}
+
+.active-filter-chip:hover { background: rgba(0,255,135,0.15); }
+
+.chip-remove { font-size: 12px; opacity: 0.7; line-height: 1; }
+
+.clear-all-btn {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  transition: all 0.12s;
+}
+
+.clear-all-btn:hover { color: var(--red); border-color: rgba(255,68,68,0.3); }
+
+/* ─── PROFILE CARDS ─── */
+.profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.profiles-grid.list-view {
+  grid-template-columns: 1fr;
+}
+
+/* Card */
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+}
+
+.profile-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.profile-card:hover {
+  border-color: var(--border-bright);
+  background: var(--surface-2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+.profile-card:hover::after { opacity: 0.5; }
+
+/* List view card */
+.profiles-grid.list-view .profile-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  transform: none;
+}
+
+.profiles-grid.list-view .profile-card:hover { transform: none; }
+
+/* Card content */
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.profiles-grid.list-view .card-header {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.card-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 1px solid;
+  font-family: var(--font-ui);
+}
+
+.card-identity { flex: 1; min-width: 0; }
+
+.card-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-title {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono);
+}
+
+.card-handle {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+/* Status badge */
+.status-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 3px 9px;
+  border-radius: 100px;
+  border: 1px solid;
+}
+
+.status-open {
+  border-color: rgba(0,255,135,0.2);
+  background: rgba(0,255,135,0.06);
+  color: var(--accent-text);
+}
+
+.status-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity:1; }
+  50% { opacity:0.3; }
+}
+
+/* Skills chips */
+.card-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.profiles-grid.list-view .card-skills {
+  margin-bottom: 0;
+  margin-left: auto;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.c-skill {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 3px 9px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.c-skill.match {
+  border-color: rgba(0,255,135,0.2);
+  color: var(--accent-text);
+  background: var(--accent-dim);
+}
+
+/* Card footer */
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.profiles-grid.list-view .card-footer { display: none; }
+
+.card-location {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.card-updated {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* ─── LOAD MORE ─── */
+.load-more-row {
+  text-align: center;
+  padding: 2rem 0 0;
+}
+
+/* ─── EMPTY STATE ─── */
+.empty-state {
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; }
+.empty-title { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+.empty-desc { font-size: 13px; line-height: 1.6; max-width: 320px; margin: 0 auto 1.5rem; }
+
+/* ─── STAT CHIPS ROW ─── */
+.stat-strip {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-item strong { color: var(--accent-text); font-size: 14px; }
+
+/* ─── MOBILE FILTER BUTTON ─── */
+.mobile-filter-btn {
+  display: none;
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+}
+
+@media (max-width: 900px) {
+  .mobile-filter-btn { display: flex; }
+  .discover-layout { padding: 0 1rem 5rem; }
+  .discover-hero { padding: 2rem 1rem 1.5rem; }
+  nav { padding: 0 1rem; }
+  .nav-center { display: none; }
+}
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface-3);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-lg);
+  padding: 10px 18px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ─── -->
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="logo-mark">F</div>
+    folio
+  </a>
+  <div class="nav-center">// discover talent</div>
+  <div class="nav-right">
+    <button class="btn btn-ghost" onclick="showToast('Opening sign in...')">Sign in</button>
+    <button class="btn btn-primary" href="auth.html">Get your handle →</button>
+  </div>
+</nav>
+
+<!-- ─── HERO ─── -->
+<div class="discover-hero">
+  <div class="hero-label">Discover</div>
+  <h1 class="discover-title">Find <em>real talent.</em><br>Not keyword soup.</h1>
+  <p class="discover-sub">Every profile on FOLIO is live, structured, and human-authored. Search by skill, role, or location — then read what they've actually built.</p>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="search-bar" type="text" id="main-search" placeholder="Search by name, skill, role, or company..." oninput="handleSearch(this.value)">
+    <span class="search-clear" id="search-clear" onclick="clearSearch()">×</span>
+  </div>
+
+  <!-- Quick pills -->
+  <div class="quick-filters">
+    <div class="q-pill" onclick="quickFilter('open-to-work', this)">🟢 Open to work</div>
+    <div class="q-pill" onclick="quickFilter('engineers', this)">Engineers</div>
+    <div class="q-pill" onclick="quickFilter('designers', this)">Designers</div>
+    <div class="q-pill" onclick="quickFilter('researchers', this)">Researchers</div>
+    <div class="q-pill" onclick="quickFilter('product', this)">Product</div>
+    <div class="q-pill" onclick="quickFilter('remote', this)">Remote-ready</div>
+    <div class="q-pill" onclick="quickFilter('students', this)">Students & Grads</div>
+    <div class="q-pill" onclick="quickFilter('career-change', this)">Career changers</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-strip">
+    <div class="stat-item"><strong id="stat-profiles">2,847</strong> public profiles</div>
+    <div class="stat-item"><strong id="stat-open">412</strong> open to work</div>
+    <div class="stat-item"><strong id="stat-updated">1,203</strong> updated this week</div>
+    <div class="stat-item"><strong>48</strong> skills tracked</div>
+  </div>
+</div>
+
+<!-- ─── MAIN LAYOUT ─── -->
+<div class="discover-layout">
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="filter-sidebar" id="filter-sidebar">
+
+    <div class="filter-section">
+      <div class="filter-title">
+        Availability
+        <span class="filter-clear" id="clear-avail" onclick="clearFilter('avail')">Clear</span>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'avail', 'open')">
+        <div class="filter-checkbox">✓</div>
+        <div class="filter-label">Open to work</div>
+        <div class="filter-count">412</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'avail', 'contract')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Open to contract</div>
+        <div class="filter-count">188</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'avail', 'mentoring')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Open to mentoring</div>
+        <div class="filter-count">94</div>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-section">
+      <div class="filter-title">
+        Role
+        <span class="filter-clear" id="clear-role" onclick="clearFilter('role')">Clear</span>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'role', 'engineering')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Engineering</div>
+        <div class="filter-count">941</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'role', 'design')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Design</div>
+        <div class="filter-count">623</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'role', 'product')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Product</div>
+        <div class="filter-count">410</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'role', 'data')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Data & Research</div>
+        <div class="filter-count">318</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'role', 'marketing')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Marketing & Growth</div>
+        <div class="filter-count">204</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'role', 'ops')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Operations</div>
+        <div class="filter-count">187</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'role', 'other')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Other</div>
+        <div class="filter-count">164</div>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-section">
+      <div class="filter-title">
+        Skills
+        <span class="filter-clear" id="clear-skills" onclick="clearSkills()">Clear</span>
+      </div>
+      <input class="filter-skill-input" type="text" placeholder="Add a skill..." oninput="filterSkillOptions(this.value)" id="skill-search-input">
+      <div class="skill-tags" id="skill-options">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-section">
+      <div class="filter-title">
+        Location
+        <span class="filter-clear" id="clear-location" onclick="clearFilter('location')">Clear</span>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'location', 'remote')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Remote</div>
+        <div class="filter-count">1,204</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'location', 'nyc')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">New York</div>
+        <div class="filter-count">387</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'location', 'sf')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">San Francisco</div>
+        <div class="filter-count">341</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'location', 'la')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Los Angeles</div>
+        <div class="filter-count">198</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'location', 'austin')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Austin</div>
+        <div class="filter-count">156</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'location', 'chicago')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Chicago</div>
+        <div class="filter-count">143</div>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-section">
+      <div class="filter-title">Experience</div>
+      <div class="filter-option" onclick="toggleFilter(this, 'exp', 'student')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">Student / New grad</div>
+        <div class="filter-count">312</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'exp', 'junior')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">1–3 years</div>
+        <div class="filter-count">487</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'exp', 'mid')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">3–7 years</div>
+        <div class="filter-count">821</div>
+      </div>
+      <div class="filter-option" onclick="toggleFilter(this, 'exp', 'senior')">
+        <div class="filter-checkbox"></div>
+        <div class="filter-label">7+ years</div>
+        <div class="filter-count">1,227</div>
+      </div>
+    </div>
+
+    <div class="filter-footer">
+      <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="clearAllFilters()">Reset all filters</button>
+    </div>
+
+  </aside>
+
+  <!-- ─── RESULTS ─── -->
+  <div class="results-area">
+
+    <!-- Active filter chips -->
+    <div class="active-filters" id="active-filters"></div>
+
+    <!-- Results header -->
+    <div class="results-header">
+      <div class="results-count" id="results-count">
+        Showing <strong id="result-num">24</strong> profiles
+      </div>
+      <div class="results-controls">
+        <select class="sort-select" onchange="resort(this.value)">
+          <option value="recent">Most recent</option>
+          <option value="relevance">Most relevant</option>
+          <option value="completeness">Most complete</option>
+          <option value="alpha">A → Z</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" id="grid-btn" onclick="setView('grid')" title="Grid view">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="view-btn" id="list-btn" onclick="setView('list')" title="List view">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards grid -->
+    <div class="profiles-grid" id="profiles-grid"></div>
+
+    <!-- Load more -->
+    <div class="load-more-row" id="load-more-row">
+      <button class="btn btn-ghost" onclick="loadMore()">
+        Load more profiles
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Mobile filter button -->
+<button class="btn btn-primary mobile-filter-btn" onclick="toggleMobileFilters()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+  Filters
+</button>
+
+<!-- ─── TOAST ─── -->
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
+
+<script>
+/* ─── PROFILE DATA ─── */
+const allProfiles = [
+  { id:1, name:'Sarah Kim', handle:'sarah-kim', title:'Principal Product Designer', company:'Acme Corp', location:'New York, NY', remote:true, open:true, skills:['Figma','Design Systems','TypeScript','User Research','Prototyping'], role:'design', exp:'senior', avatar:'SK', color:'rgba(0,130,255,0.12)', textColor:'#4488ff', border:'rgba(68,136,255,0.2)', updated:'2h ago', readme:true },
+  { id:2, name:'Marcus Diallo', handle:'marcus-dev', title:'Senior Software Engineer', company:'Remote', location:'Remote', remote:true, open:true, skills:['TypeScript','Rust','Kubernetes','PostgreSQL','Go'], role:'engineering', exp:'senior', avatar:'MD', color:'rgba(0,255,135,0.10)', textColor:'var(--accent-text)', border:'rgba(0,255,135,0.15)', updated:'1d ago', readme:true },
+  { id:3, name:'Priya Patel', handle:'priya-design', title:'Lead Product Designer', company:'Notion', location:'San Francisco, CA', remote:false, open:true, skills:['Figma','Motion Design','Framer','Design Systems','React'], role:'design', exp:'senior', avatar:'PP', color:'rgba(107,95,255,0.10)', textColor:'#6b5fff', border:'rgba(107,95,255,0.2)', updated:'3d ago', readme:true },
+  { id:4, name:'Elena Kim', handle:'elena-k', title:'Research Scientist', company:'MIT', location:'Boston, MA', remote:false, open:false, skills:['Python','NLP','PyTorch','ML','Research'], role:'data', exp:'senior', avatar:'EK', color:'var(--gold-dim)', textColor:'var(--gold)', border:'rgba(200,169,110,0.2)', updated:'1w ago', readme:true },
+  { id:5, name:'Jordan Rivera', handle:'jordan-r', title:'Full Stack Engineer', company:'Freelance', location:'Austin, TX', remote:true, open:true, skills:['React','Node.js','TypeScript','AWS','PostgreSQL'], role:'engineering', exp:'mid', avatar:'JR', color:'rgba(255,153,0,0.10)', textColor:'#ff9900', border:'rgba(255,153,0,0.2)', updated:'4h ago', readme:false },
+  { id:6, name:'Aisha Okonkwo', handle:'aisha-dev', title:'Backend Engineer', company:'Stripe', location:'Remote', remote:true, open:false, skills:['Go','gRPC','Kubernetes','Redis','Postgres'], role:'engineering', exp:'mid', avatar:'AO', color:'rgba(0,255,135,0.08)', textColor:'var(--accent-text)', border:'rgba(0,255,135,0.12)', updated:'2d ago', readme:true },
+  { id:7, name:'Tyler Chen', handle:'tylerchen', title:'Product Manager', company:'Linear', location:'San Francisco, CA', remote:true, open:true, skills:['Product Strategy','Roadmapping','SQL','User Research','Figma'], role:'product', exp:'mid', avatar:'TC', color:'var(--blue-dim)', textColor:'var(--blue)', border:'rgba(68,136,255,0.2)', updated:'6h ago', readme:true },
+  { id:8, name:'Fatima Al-Hassan', handle:'fatima-ux', title:'UX Researcher', company:'Microsoft', location:'Seattle, WA', remote:false, open:true, skills:['User Research','Usability Testing','Figma','SQL','Qualtrics'], role:'design', exp:'mid', avatar:'FA', color:'rgba(255,75,85,0.08)', textColor:'#ff4b55', border:'rgba(255,75,85,0.15)', updated:'5d ago', readme:true },
+  { id:9, name:'Dev Patel', handle:'devpatel', title:'ML Engineer', company:'OpenAI', location:'San Francisco, CA', remote:false, open:false, skills:['Python','PyTorch','CUDA','MLOps','Transformers'], role:'data', exp:'senior', avatar:'DP', color:'rgba(107,95,255,0.10)', textColor:'#6b5fff', border:'rgba(107,95,255,0.2)', updated:'2w ago', readme:false },
+  { id:10, name:'Mariana Santos', handle:'mariana-s', title:'Data Scientist', company:'Airbnb', location:'Remote', remote:true, open:true, skills:['Python','dbt','Spark','Tableau','Statistics'], role:'data', exp:'mid', avatar:'MS', color:'var(--gold-dim)', textColor:'var(--gold)', border:'rgba(200,169,110,0.2)', updated:'1d ago', readme:true },
+  { id:11, name:'Kwame Asante', handle:'kwame-dev', title:'iOS Engineer', company:'Duolingo', location:'Pittsburgh, PA', remote:true, open:true, skills:['Swift','SwiftUI','Kotlin','iOS','CI/CD'], role:'engineering', exp:'mid', avatar:'KA', color:'rgba(0,255,135,0.08)', textColor:'var(--accent-text)', border:'rgba(0,255,135,0.12)', updated:'3h ago', readme:true },
+  { id:12, name:'Zoe Martinez', handle:'zoe-design', title:'Visual Designer', company:'Dropbox', location:'Los Angeles, CA', remote:true, open:false, skills:['Figma','Illustration','After Effects','Brand','Typography'], role:'design', exp:'junior', avatar:'ZM', color:'rgba(255,153,0,0.08)', textColor:'#ff9900', border:'rgba(255,153,0,0.15)', updated:'1w ago', readme:true },
+  { id:13, name:'Liam Park', handle:'liam-pm', title:'Associate Product Manager', company:'Seeking', location:'Chicago, IL', remote:true, open:true, skills:['Product Strategy','Jira','SQL','Analytics','A/B Testing'], role:'product', exp:'junior', avatar:'LP', color:'var(--blue-dim)', textColor:'var(--blue)', border:'rgba(68,136,255,0.2)', updated:'2d ago', readme:true },
+  { id:14, name:'Nadia Osei', handle:'nadia-eng', title:'Platform Engineer', company:'Cloudflare', location:'Remote', remote:true, open:false, skills:['Rust','WebAssembly','Networking','Linux','C++'], role:'engineering', exp:'senior', avatar:'NO', color:'rgba(255,153,0,0.10)', textColor:'#ff9900', border:'rgba(255,153,0,0.2)', updated:'4d ago', readme:false },
+  { id:15, name:'Alex Thompson', handle:'alex-t', title:'Growth Marketing Lead', company:'Figma', location:'San Francisco, CA', remote:false, open:true, skills:['SEO','Paid Media','Analytics','HubSpot','SQL'], role:'marketing', exp:'mid', avatar:'AT', color:'rgba(107,95,255,0.08)', textColor:'#6b5fff', border:'rgba(107,95,255,0.15)', updated:'1d ago', readme:true },
+  { id:16, name:'Imani Williams', handle:'imani-w', title:'DevOps Engineer', company:'Netflix', location:'Los Angeles, CA', remote:false, open:false, skills:['Terraform','AWS','Kubernetes','Python','Monitoring'], role:'engineering', exp:'senior', avatar:'IW', color:'rgba(255,75,85,0.08)', textColor:'#ff4b55', border:'rgba(255,75,85,0.15)', updated:'3w ago', readme:true },
+  { id:17, name:'Sam Liu', handle:'samliu', title:'Computer Science Student', company:'Stanford University', location:'Palo Alto, CA', remote:true, open:true, skills:['Python','Java','React','Machine Learning','Algorithms'], role:'engineering', exp:'student', avatar:'SL', color:'var(--gold-dim)', textColor:'var(--gold)', border:'rgba(200,169,110,0.2)', updated:'6h ago', readme:true },
+  { id:18, name:'Kezia Obi', handle:'kezia-data', title:'Analytics Engineer', company:'dbt Labs', location:'Remote', remote:true, open:true, skills:['dbt','SQL','Python','Looker','Snowflake'], role:'data', exp:'mid', avatar:'KO', color:'rgba(0,255,135,0.08)', textColor:'var(--accent-text)', border:'rgba(0,255,135,0.12)', updated:'8h ago', readme:true },
+  { id:19, name:'Marco Valentini', handle:'marco-v', title:'Product Designer', company:'Career Change → Tech', location:'New York, NY', remote:true, open:true, skills:['Figma','Prototyping','User Research','HTML','CSS'], role:'design', exp:'junior', avatar:'MV', color:'var(--blue-dim)', textColor:'var(--blue)', border:'rgba(68,136,255,0.2)', updated:'1d ago', readme:true },
+  { id:20, name:'Rachel Cho', handle:'rachel-pm', title:'Senior Product Manager', company:'Slack', location:'San Francisco, CA', remote:false, open:false, skills:['B2B SaaS','Roadmapping','Data Analysis','Figma','Stakeholder Mgmt'], role:'product', exp:'senior', avatar:'RC', color:'rgba(255,153,0,0.08)', textColor:'#ff9900', border:'rgba(255,153,0,0.15)', updated:'5d ago', readme:true },
+  { id:21, name:'Obinna Eze', handle:'obinna-e', title:'Frontend Engineer', company:'Vercel', location:'Remote', remote:true, open:true, skills:['React','TypeScript','Next.js','CSS','Performance'], role:'engineering', exp:'mid', avatar:'OE', color:'rgba(0,255,135,0.08)', textColor:'var(--accent-text)', border:'rgba(0,255,135,0.12)', updated:'2h ago', readme:true },
+  { id:22, name:'Yuki Tanaka', handle:'yuki-t', title:'Design Systems Engineer', company:'Atlassian', location:'Remote', remote:true, open:true, skills:['React','TypeScript','Figma','Storybook','Accessibility'], role:'engineering', exp:'senior', avatar:'YT', color:'rgba(107,95,255,0.10)', textColor:'#6b5fff', border:'rgba(107,95,255,0.2)', updated:'3d ago', readme:true },
+  { id:23, name:'Destiny Moore', handle:'destiny-m', title:'Bootcamp Graduate', company:'Job Seeking', location:'Atlanta, GA', remote:true, open:true, skills:['JavaScript','React','Python','Node.js','SQL'], role:'engineering', exp:'student', avatar:'DM', color:'rgba(255,75,85,0.08)', textColor:'#ff4b55', border:'rgba(255,75,85,0.15)', updated:'1d ago', readme:true },
+  { id:24, name:'Arjun Mehta', handle:'arjun-pm', title:'Director of Product', company:'Figma', location:'San Francisco, CA', remote:false, open:false, skills:['Product Vision','B2B','Enterprise','OKRs','Hiring'], role:'product', exp:'senior', avatar:'AM', color:'var(--gold-dim)', textColor:'var(--gold)', border:'rgba(200,169,110,0.2)', updated:'1w ago', readme:false },
+];
+
+const allSkills = ['TypeScript','React','Python','Figma','Node.js','PostgreSQL','Design Systems','Rust','Go','Machine Learning','SQL','AWS','Kubernetes','Swift','Next.js','Framer','dbt','Snowflake','NLP','PyTorch','CSS','GraphQL','Terraform','User Research','Prototyping'];
+
+/* ─── STATE ─── */
+let activeFilters = { avail: new Set(), role: new Set(), location: new Set(), exp: new Set(), skills: new Set() };
+let searchQuery = '';
+let currentView = 'grid';
+let displayedCount = 24;
+let searchedSkill = '';
+
+/* ─── INIT ─── */
+renderSkillOptions('');
+renderCards();
+
+/* ─── SEARCH ─── */
+function handleSearch(val) {
+  searchQuery = val.toLowerCase();
+  document.getElementById('search-clear').classList.toggle('show', val.length > 0);
+  renderCards();
+}
+
+function clearSearch() {
+  document.getElementById('main-search').value = '';
+  searchQuery = '';
+  document.getElementById('search-clear').classList.remove('show');
+  renderCards();
+}
+
+/* ─── QUICK FILTERS ─── */
+const quickMap = {
+  'open-to-work': () => { toggleFilterByKey('avail','open'); },
+  'engineers': () => { toggleFilterByKey('role','engineering'); },
+  'designers': () => { toggleFilterByKey('role','design'); },
+  'researchers': () => { toggleFilterByKey('role','data'); },
+  'product': () => { toggleFilterByKey('role','product'); },
+  'remote': () => { toggleFilterByKey('location','remote'); },
+  'students': () => { toggleFilterByKey('exp','student'); },
+  'career-change': () => { document.getElementById('main-search').value = 'Career Change'; searchQuery = 'career change'; document.getElementById('search-clear').classList.add('show'); },
+};
+
+function quickFilter(key, el) {
+  el.classList.toggle('active');
+  quickMap[key]?.();
+  renderCards();
+}
+
+function toggleFilterByKey(group, val) {
+  const sidebarOpts = document.querySelectorAll('.filter-option');
+  sidebarOpts.forEach(opt => {
+    if(opt.getAttribute('data-group') === group && opt.getAttribute('data-val') === val) {
+      opt.classList.toggle('checked');
+    }
+  });
+  if(activeFilters[group].has(val)) activeFilters[group].delete(val);
+  else activeFilters[group].add(val);
+  updateFilterClears();
+}
+
+/* ─── SIDEBAR FILTERS ─── */
+function toggleFilter(el, group, val) {
+  el.classList.toggle('checked');
+  el.setAttribute('data-group', group);
+  el.setAttribute('data-val', val);
+  if(activeFilters[group].has(val)) activeFilters[group].delete(val);
+  else activeFilters[group].add(val);
+  updateFilterClears();
+  renderCards();
+}
+
+function clearFilter(group) {
+  activeFilters[group].clear();
+  document.querySelectorAll('.filter-option').forEach(opt => {
+    if(opt.getAttribute('data-group') === group) opt.classList.remove('checked');
+  });
+  updateFilterClears();
+  renderCards();
+}
+
+function clearSkills() {
+  activeFilters.skills.clear();
+  renderSkillOptions(searchedSkill);
+  updateFilterClears();
+  renderCards();
+}
+
+function clearAllFilters() {
+  Object.keys(activeFilters).forEach(k => activeFilters[k].clear());
+  document.querySelectorAll('.filter-option').forEach(el => el.classList.remove('checked'));
+  document.querySelectorAll('.q-pill').forEach(el => el.classList.remove('active'));
+  renderSkillOptions('');
+  clearSearch();
+  updateFilterClears();
+  renderCards();
+}
+
+function updateFilterClears() {
+  Object.keys(activeFilters).forEach(k => {
+    const el = document.getElementById('clear-' + k);
+    if(el) el.classList.toggle('show', activeFilters[k].size > 0);
+  });
+  renderActiveChips();
+}
+
+/* ─── ACTIVE FILTER CHIPS ─── */
+function renderActiveChips() {
+  const container = document.getElementById('active-filters');
+  const chips = [];
+  const labels = { avail: { open:'Open to work', contract:'Contract', mentoring:'Mentoring' }, role: { engineering:'Engineering', design:'Design', product:'Product', data:'Data & Research', marketing:'Marketing', ops:'Operations', other:'Other' }, location: { remote:'Remote', nyc:'New York', sf:'San Francisco', la:'Los Angeles', austin:'Austin', chicago:'Chicago' }, exp: { student:'Student/Grad', junior:'1–3 yrs', mid:'3–7 yrs', senior:'7+ yrs' } };
+  Object.entries(activeFilters).forEach(([group, vals]) => {
+    if(group === 'skills') {
+      vals.forEach(v => chips.push({ label: v, group: 'skills', val: v }));
+    } else {
+      vals.forEach(v => chips.push({ label: labels[group]?.[v] || v, group, val: v }));
+    }
+  });
+  container.innerHTML = chips.map(c => `
+    <div class="active-filter-chip" onclick="removeChip('${c.group}','${c.val}')">
+      ${c.label}<span class="chip-remove">×</span>
+    </div>
+  `).join('') + (chips.length > 1 ? `<div class="clear-all-btn" onclick="clearAllFilters()">Clear all</div>` : '');
+}
+
+function removeChip(group, val) {
+  activeFilters[group].delete(val);
+  document.querySelectorAll('.filter-option').forEach(opt => {
+    if(opt.getAttribute('data-group') === group && opt.getAttribute('data-val') === val) opt.classList.remove('checked');
+  });
+  if(group === 'skills') renderSkillOptions(searchedSkill);
+  updateFilterClears();
+  renderCards();
+}
+
+/* ─── SKILL OPTIONS ─── */
+function renderSkillOptions(q) {
+  const container = document.getElementById('skill-options');
+  const filtered = allSkills.filter(s => !q || s.toLowerCase().includes(q.toLowerCase())).slice(0, 20);
+  container.innerHTML = filtered.map(s => `
+    <div class="skill-filter-tag ${activeFilters.skills.has(s) ? 'selected' : ''}" onclick="toggleSkill('${s}')">
+      ${s}${activeFilters.skills.has(s) ? '<span class="remove">×</span>' : ''}
+    </div>
+  `).join('');
+}
+
+function filterSkillOptions(q) {
+  searchedSkill = q;
+  renderSkillOptions(q);
+}
+
+function toggleSkill(skill) {
+  if(activeFilters.skills.has(skill)) activeFilters.skills.delete(skill);
+  else activeFilters.skills.add(skill);
+  renderSkillOptions(searchedSkill);
+  document.getElementById('clear-skills').classList.toggle('show', activeFilters.skills.size > 0);
+  renderActiveChips();
+  renderCards();
+}
+
+/* ─── FILTER PROFILES ─── */
+function getFiltered() {
+  return allProfiles.filter(p => {
+    if(searchQuery) {
+      const hay = `${p.name} ${p.title} ${p.company} ${p.location} ${p.skills.join(' ')} ${p.handle}`.toLowerCase();
+      if(!hay.includes(searchQuery)) return false;
+    }
+    if(activeFilters.avail.size) {
+      if(activeFilters.avail.has('open') && !p.open) return false;
+      if(activeFilters.avail.has('contract') && !p.open) return false;
+    }
+    if(activeFilters.role.size && !activeFilters.role.has(p.role)) return false;
+    if(activeFilters.exp.size && !activeFilters.exp.has(p.exp)) return false;
+    if(activeFilters.location.size) {
+      const locMap = { remote: p.remote, nyc: p.location.includes('New York'), sf: p.location.includes('San Francisco'), la: p.location.includes('Los Angeles'), austin: p.location.includes('Austin'), chicago: p.location.includes('Chicago') };
+      if(![...activeFilters.location].some(l => locMap[l])) return false;
+    }
+    if(activeFilters.skills.size) {
+      if(![...activeFilters.skills].some(s => p.skills.some(ps => ps.toLowerCase() === s.toLowerCase()))) return false;
+    }
+    return true;
+  });
+}
+
+/* ─── RENDER CARDS ─── */
+function renderCards() {
+  const filtered = getFiltered();
+  const grid = document.getElementById('profiles-grid');
+  const shown = filtered.slice(0, displayedCount);
+
+  document.getElementById('result-num').textContent = filtered.length;
+  document.getElementById('load-more-row').style.display = filtered.length > displayedCount ? 'block' : 'none';
+
+  if(filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">◎</div>
+        <div class="empty-title">No profiles match your filters</div>
+        <div class="empty-desc">Try broadening your search or clearing some filters</div>
+        <button class="btn btn-ghost" onclick="clearAllFilters()">Clear all filters</button>
+      </div>`;
+    return;
+  }
+
+  const searchedSkills = activeFilters.skills.size ? [...activeFilters.skills] : (searchQuery ? [searchQuery] : []);
+
+  grid.innerHTML = shown.map(p => {
+    const skills = p.skills.slice(0, currentView === 'list' ? 3 : 5);
+    const skillChips = skills.map(s => {
+      const isMatch = searchedSkills.some(q => s.toLowerCase().includes(q.toLowerCase()));
+      return `<span class="c-skill ${isMatch ? 'match' : ''}">${s}</span>`;
+    }).join('');
+
+    return `
+      <a class="profile-card" href="folio-profile.html" onclick="return handleCardClick(event, '${p.handle}', '${p.name}')">
+        <div class="card-header">
+          <div class="card-avatar" style="background:${p.color};color:${p.textColor};border-color:${p.border}">${p.avatar}</div>
+          <div class="card-identity">
+            <div class="card-name">${p.name}</div>
+            <div class="card-title">${p.title}</div>
+            <div class="card-handle">@${p.handle}</div>
+          </div>
+          ${p.open ? `<div class="status-badge status-open"><div class="status-dot"></div>Open</div>` : ''}
+        </div>
+        <div class="card-skills">${skillChips}</div>
+        <div class="card-footer">
+          <div class="card-location">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            ${p.location}
+          </div>
+          <div class="card-updated">${p.updated}</div>
+        </div>
+      </a>
+    `;
+  }).join('');
+}
+
+function handleCardClick(e, handle, name) {
+  if(handle !== 'sarah-kim') {
+    e.preventDefault();
+    showToast(`Opening @${handle}...`);
+    setTimeout(() => window.open('folio-profile.html', '_blank'), 600);
+  }
+  return handle === 'sarah-kim';
+}
+
+/* ─── VIEW TOGGLE ─── */
+function setView(v) {
+  currentView = v;
+  document.getElementById('profiles-grid').classList.toggle('list-view', v === 'list');
+  document.getElementById('grid-btn').classList.toggle('active', v === 'grid');
+  document.getElementById('list-btn').classList.toggle('active', v === 'list');
+  renderCards();
+}
+
+/* ─── SORT ─── */
+function resort(val) {
+  if(val === 'alpha') allProfiles.sort((a,b) => a.name.localeCompare(b.name));
+  else if(val === 'relevance') allProfiles.sort((a,b) => (b.readme?1:0) - (a.readme?1:0));
+  else if(val === 'recent') allProfiles.sort((a,b) => a.id - b.id);
+  renderCards();
+}
+
+/* ─── LOAD MORE ─── */
+function loadMore() {
+  displayedCount += 12;
+  renderCards();
+  showToast('Loading more profiles...');
+}
+
+/* ─── MOBILE FILTERS ─── */
+function toggleMobileFilters() {
+  document.getElementById('filter-sidebar').classList.toggle('mobile-open');
+}
+
+/* ─── TOAST ─── */
+let toastTimer;
+function showToast(msg) {
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => document.getElementById('toast').classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

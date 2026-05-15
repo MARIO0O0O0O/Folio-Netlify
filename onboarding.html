@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOLIO — Set up your vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #0a0a0a;
+  --surface: #111111;
+  --surface-2: #161616;
+  --surface-3: #1c1c1c;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,255,255,0.12);
+  --border-focus: rgba(0,255,135,0.35);
+  --text-primary: #f0ede8;
+  --text-secondary: #888580;
+  --text-muted: #3f3d3b;
+  --accent: #00ff87;
+  --accent-dim: rgba(0,255,135,0.09);
+  --accent-text: #00cc6a;
+  --gold: #c8a96e;
+  --blue: #4488ff;
+  --red: #ff4444;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-ui: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.35;}
+
+/* ─── TOPBAR ─── */
+.ob-top{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;border-bottom:1px solid var(--border);background:rgba(10,10,10,0.9);backdrop-filter:blur(12px);flex-shrink:0;position:relative;z-index:10;}
+.logo{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:14px;color:var(--text-primary);}
+.logo-mark{width:22px;height:22px;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000;}
+.ob-step-label{font-size:12px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.04em;}
+.ob-exit{font-size:12px;color:var(--text-muted);cursor:pointer;font-family:var(--font-mono);transition:color .12s;}
+.ob-exit:hover{color:var(--text-secondary);}
+
+/* ─── PROGRESS ─── */
+.ob-progress{height:2px;background:var(--surface-3);flex-shrink:0;position:relative;z-index:10;}
+.ob-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-text),var(--accent));transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+
+/* ─── STEP DOTS ─── */
+.ob-stepper{display:flex;align-items:center;justify-content:center;gap:0;padding:1.25rem 2rem 0;flex-shrink:0;position:relative;z-index:1;}
+.ob-step-dot-wrap{display:flex;align-items:center;}
+.ob-dot{width:28px;height:28px;border-radius:50%;border:1px solid var(--border-bright);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:var(--text-muted);transition:all .25s;cursor:pointer;position:relative;}
+.ob-dot.done{background:var(--surface-2);border-color:rgba(0,255,135,0.3);color:var(--accent-text);}
+.ob-dot.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;box-shadow:0 0 0 4px rgba(0,255,135,0.12);}
+.ob-dot-label{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);font-size:10px;font-family:var(--font-mono);color:var(--text-muted);white-space:nowrap;letter-spacing:.04em;}
+.ob-dot.active .ob-dot-label{color:var(--accent-text);}
+.ob-dot.done .ob-dot-label{color:var(--text-secondary);}
+.ob-connector{width:48px;height:1px;background:var(--border);transition:background .3s;}
+.ob-connector.done{background:rgba(0,255,135,0.2);}
+
+/* ─── MAIN SCROLL AREA ─── */
+.ob-main{flex:1;overflow-y:auto;position:relative;z-index:1;display:flex;flex-direction:column;}
+.ob-main::-webkit-scrollbar{width:4px;}
+.ob-main::-webkit-scrollbar-thumb{background:var(--surface-3);}
+
+/* ─── STEP PANELS ─── */
+.ob-step{display:none;padding:2.5rem 2rem;max-width:680px;margin:0 auto;width:100%;animation:stepIn .3s ease;}
+.ob-step.active{display:block;}
+@keyframes stepIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+.step-eyebrow{font-size:11px;font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent-text);margin-bottom:.75rem;}
+.step-title{font-family:var(--font-display);font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:400;letter-spacing:-.02em;line-height:1.1;margin-bottom:.6rem;color:var(--text-primary);}
+.step-title em{font-style:italic;color:var(--accent);}
+.step-sub{font-size:14px;color:var(--text-secondary);line-height:1.65;margin-bottom:2rem;max-width:480px;}
+
+/* ─── BOTTOM NAV ─── */
+.ob-bottom{border-top:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:rgba(10,10,10,0.8);backdrop-filter:blur(10px);position:relative;z-index:10;}
+.ob-time{font-size:11px;font-family:var(--font-mono);color:var(--text-muted);}
+.ob-nav-btns{display:flex;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:var(--radius);border:1px solid transparent;font-size:13px;font-weight:600;font-family:var(--font-ui);cursor:pointer;transition:all .15s;letter-spacing:.02em;}
+.btn-primary{background:var(--accent);color:#000;border-color:var(--accent);}
+.btn-primary:hover{background:#00e87a;box-shadow:0 4px 16px rgba(0,255,135,.2);transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border-bright);}
+.btn-ghost:hover{background:var(--surface);color:var(--text-primary);}
+
+/* ─── FORM ELEMENTS ─── */
+.form-group{margin-bottom:1.25rem;}
+.form-label{display:block;font-size:11px;font-weight:600;font-family:var(--font-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:7px;}
+.form-label span{color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;}
+.form-input,.form-textarea,.form-select{width:100%;padding:11px 14px;background:var(--surface-2);border:1px solid var(--border-bright);border-radius:var(--radius);color:var(--text-primary);font-size:14px;font-family:var(--font-ui);outline:none;transition:all .15s;}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text-muted);}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--border-focus);background:var(--surface-3);box-shadow:0 0 0 3px rgba(0,255,135,.05);}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.6;}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888580' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;}
+.form-select option{background:var(--surface-3);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-hint{font-size:11px;color:var(--text-muted);margin-top:5px;font-family:var(--font-mono);}
+.form-error{font-size:12px;color:var(--red);margin-top:5px;font-family:var(--font-mono);display:none;}
+.form-error.show{display:block;}
+.form-input.err,.form-textarea.err{border-color:rgba(255,68,68,.4);}
+.char-count{font-size:11px;color:var(--text-muted);text-align:right;margin-top:4px;font-family:var(--font-mono);}
+.char-count.warn{color:var(--gold);}
+.char-count.over{color:var(--red);}
+
+/* ─── STEP 1: IMPORT ─── */
+.import-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;}
+.import-option{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-xl);padding:1.5rem;cursor:pointer;transition:all .2s;text-align:center;position:relative;}
+.import-option:hover{border-color:var(--border-bright);background:var(--surface-2);}
+.import-option.selected{border-color:rgba(0,255,135,.35);background:var(--accent-dim);}
+.import-option.selected::after{content:'✓';position:absolute;top:10px;right:12px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#000;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.import-icon{font-size:2rem;margin-bottom:.75rem;}
+.import-label{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px;}
+.import-desc{font-size:12px;color:var(--text-secondary);line-height:1.5;}
+.import-eta{font-size:11px;font-family:var(--font-mono);color:var(--accent-text);margin-top:6px;}
+
+/* Upload zone */
+.upload-zone{border:1px dashed var(--border-bright);border-radius:var(--radius-lg);padding:2rem;text-align:center;cursor:pointer;transition:all .15s;background:var(--surface);margin-top:1rem;}
+.upload-zone:hover,.upload-zone.drag{border-color:rgba(0,255,135,.3);background:var(--accent-dim);}
+.upload-icon{font-size:1.5rem;margin-bottom:.5rem;opacity:.6;}
+.upload-label{font-size:13px;color:var(--text-secondary);margin-bottom:3px;}
+.upload-sub{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);}
+
+/* ─── STEP 2: BASICS ─── */
+.avatar-picker{display:flex;align-items:center;gap:1rem;margin-bottom:1.75rem;}
+.avatar-preview{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;font-family:var(--font-ui);border:1px solid rgba(0,255,135,.2);background:var(--accent-dim);color:var(--accent-text);flex-shrink:0;transition:all .2s;}
+.avatar-actions{display:flex;flex-direction:column;gap:8px;}
+.avatar-btn{font-size:12px;font-family:var(--font-mono);padding:6px 14px;border-radius:var(--radius);border:1px solid var(--border-bright);background:var(--surface);color:var(--text-secondary);cursor:pointer;transition:all .12s;white-space:nowrap;}
+.avatar-btn:hover{border-color:rgba(0,255,135,.25);color:var(--accent-text);}
+
+/* Color palette */
+.avatar-colors{display:flex;gap:6px;margin-top:6px;}
+.color-swatch{width:18px;height:18px;border-radius:50%;cursor:pointer;transition:transform .12s;border:2px solid transparent;}
+.color-swatch:hover{transform:scale(1.2);}
+.color-swatch.active{border-color:var(--text-primary);}
+
+/* Headline counter */
+.headline-wrap{position:relative;}
+.headline-wrap .form-input{padding-right:56px;}
+.headline-count{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;font-family:var(--font-mono);color:var(--text-muted);}
+
+/* ─── STEP 3: WORK ─── */
+.work-entries{display:flex;flex-direction:column;gap:10px;margin-bottom:1rem;}
+.work-entry{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.work-entry-header{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;}
+.work-entry-logo{width:32px;height:32px;border-radius:var(--radius);background:var(--surface-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-secondary);flex-shrink:0;}
+.work-entry-info{flex:1;min-width:0;}
+.work-entry-title{font-size:14px;font-weight:600;color:var(--text-primary);}
+.work-entry-sub{font-size:12px;color:var(--text-secondary);font-family:var(--font-mono);}
+.work-entry-actions{display:flex;gap:6px;}
+.entry-action{width:26px;height:26px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .12s;}
+.entry-action:hover{background:var(--surface-2);color:var(--text-primary);}
+.entry-action.del:hover{color:var(--red);border-color:rgba(255,68,68,.3);}
+.work-entry-body{padding:0 14px 14px;display:none;border-top:1px solid var(--border);padding-top:14px;}
+.work-entry.open .work-entry-body{display:block;}
+
+/* AI assist box */
+.ai-assist-box{background:var(--surface-3);border:1px solid rgba(0,255,135,.08);border-radius:var(--radius-lg);padding:12px 14px;margin-top:10px;}
+.ai-assist-label{font-size:10px;font-family:var(--font-mono);color:var(--accent-text);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.ai-assist-body{font-size:12px;color:var(--text-secondary);line-height:1.55;}
+
+/* ─── STEP 4: SKILLS ─── */
+.skill-add-row{display:flex;gap:8px;margin-bottom:1rem;}
+.skill-add-input{flex:1;padding:10px 14px;background:var(--surface-2);border:1px solid var(--border-bright);border-radius:var(--radius);color:var(--text-primary);font-size:13px;font-family:var(--font-ui);outline:none;transition:border-color .15s;}
+.skill-add-input::placeholder{color:var(--text-muted);}
+.skill-add-input:focus{border-color:var(--border-focus);}
+.skill-add-btn{padding:10px 18px;background:var(--surface);border:1px solid var(--border-bright);border-radius:var(--radius);color:var(--text-secondary);font-size:13px;font-weight:600;font-family:var(--font-ui);cursor:pointer;transition:all .12s;white-space:nowrap;}
+.skill-add-btn:hover{border-color:rgba(0,255,135,.3);color:var(--accent-text);}
+.skills-bucket{display:flex;flex-wrap:wrap;gap:6px;min-height:40px;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:1.25rem;}
+.s-tag{font-size:12px;font-family:var(--font-mono);padding:5px 12px;border-radius:100px;border:1px solid rgba(0,255,135,.2);background:var(--accent-dim);color:var(--accent-text);display:inline-flex;align-items:center;gap:6px;cursor:default;animation:tagPop .2s cubic-bezier(.34,1.56,.64,1);}
+@keyframes tagPop{from{opacity:0;transform:scale(.8);}to{opacity:1;transform:scale(1);}}
+.s-tag-remove{font-size:12px;opacity:.6;cursor:pointer;line-height:1;transition:opacity .12s;}
+.s-tag-remove:hover{opacity:1;}
+.suggested-label{font-size:11px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;}
+.suggested-skills{display:flex;flex-wrap:wrap;gap:6px;}
+.suggested-chip{font-size:12px;font-family:var(--font-mono);padding:5px 12px;border-radius:100px;border:1px solid var(--border-bright);color:var(--text-secondary);cursor:pointer;transition:all .12s;}
+.suggested-chip:hover{border-color:rgba(0,255,135,.25);color:var(--accent-text);background:var(--accent-dim);}
+.skill-target-note{font-size:12px;color:var(--text-muted);font-family:var(--font-mono);margin-top:.5rem;}
+.skill-target-note strong{color:var(--accent-text);}
+
+/* ─── STEP 5: PUBLISH ─── */
+.profile-preview-card{background:var(--surface);border:1px solid var(--border-bright);border-radius:var(--radius-xl);overflow:hidden;margin-bottom:1.5rem;}
+.preview-header{padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;}
+.preview-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;background:var(--accent-dim);color:var(--accent-text);border:1px solid rgba(0,255,135,.2);font-family:var(--font-ui);}
+.preview-name{font-size:17px;font-weight:700;color:var(--text-primary);margin-bottom:2px;}
+.preview-title{font-size:13px;color:var(--text-secondary);font-family:var(--font-mono);}
+.preview-handle{font-size:12px;color:var(--accent-text);font-family:var(--font-mono);margin-top:2px;}
+.preview-body{padding:1.25rem;}
+.preview-section-label{font-size:10px;font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+.preview-skills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem;}
+.p-chip{font-size:11px;font-family:var(--font-mono);padding:3px 10px;border-radius:100px;border:1px solid var(--border-bright);color:var(--text-secondary);}
+.preview-entries{display:flex;flex-direction:column;gap:6px;}
+.preview-entry{display:flex;align-items:center;gap:10px;font-size:13px;}
+.pe-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-text);flex-shrink:0;}
+.pe-text{color:var(--text-secondary);}
+
+/* Visibility toggle */
+.visibility-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:1rem;}
+.vis-label{font-size:14px;font-weight:600;color:var(--text-primary);}
+.vis-sub{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+.toggle-switch{width:40px;height:22px;border-radius:100px;border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;}
+.toggle-switch.on{background:var(--accent);}
+.toggle-switch.off{background:var(--surface-3);}
+.toggle-knob{position:absolute;top:2px;width:18px;height:18px;border-radius:50%;background:#000;transition:left .2s;}
+.toggle-switch.on .toggle-knob{left:20px;}
+.toggle-switch.off .toggle-knob{left:2px;}
+.toggle-switch.off .toggle-knob{background:var(--text-muted);}
+
+/* Completion bars */
+.completeness-preview{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;}
+.comp-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.comp-row:last-child{margin-bottom:0;}
+.comp-label{font-size:12px;color:var(--text-secondary);width:80px;flex-shrink:0;}
+.comp-bar-wrap{flex:1;height:4px;background:var(--surface-3);border-radius:100px;overflow:hidden;}
+.comp-bar{height:100%;border-radius:100px;transition:width .6s ease;}
+.comp-pct{font-size:11px;font-family:var(--font-mono);color:var(--text-muted);width:30px;text-align:right;flex-shrink:0;}
+
+/* Confetti placeholder */
+.confetti-area{height:4px;background:linear-gradient(90deg,var(--accent-text),var(--blue),var(--gold),var(--accent));border-radius:2px;margin-bottom:1rem;opacity:.6;}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:2px;}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:600px){
+  .ob-step{padding:1.5rem 1rem;}
+  .ob-top{padding:0 1rem;}
+  .ob-bottom{padding:1rem;}
+  .import-options{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .ob-connector{width:24px;}
+  .ob-dot-label{display:none;}
+}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-3);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:10px 18px;font-size:12px;font-family:var(--font-mono);color:var(--text-primary);z-index:9999;display:flex;align-items:center;gap:8px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+</style>
+</head>
+<body>
+
+<!-- ─── TOPBAR ─── -->
+<div class="ob-top">
+  <div class="logo"><div class="logo-mark">F</div>folio</div>
+  <div class="ob-step-label" id="step-label">Step 1 of 5 · Import</div>
+  <div class="ob-exit" onclick="showToast('Returning to dashboard...')">Save & exit</div>
+</div>
+
+<!-- ─── PROGRESS BAR ─── -->
+<div class="ob-progress"><div class="ob-progress-fill" id="progress-fill" style="width:20%"></div></div>
+
+<!-- ─── STEP DOTS ─── */
+<div class="ob-stepper">
+  <div class="ob-step-dot-wrap">
+    <div class="ob-dot active" id="dot-1" onclick="goToStep(1)">1<div class="ob-dot-label">Import</div></div>
+  </div>
+  <div class="ob-connector" id="conn-1"></div>
+  <div class="ob-step-dot-wrap">
+    <div class="ob-dot" id="dot-2" onclick="goToStep(2)">2<div class="ob-dot-label">Basics</div></div>
+  </div>
+  <div class="ob-connector" id="conn-2"></div>
+  <div class="ob-step-dot-wrap">
+    <div class="ob-dot" id="dot-3" onclick="goToStep(3)">3<div class="ob-dot-label">Work</div></div>
+  </div>
+  <div class="ob-connector" id="conn-3"></div>
+  <div class="ob-step-dot-wrap">
+    <div class="ob-dot" id="dot-4" onclick="goToStep(4)">4<div class="ob-dot-label">Skills</div></div>
+  </div>
+  <div class="ob-connector" id="conn-4"></div>
+  <div class="ob-step-dot-wrap">
+    <div class="ob-dot" id="dot-5" onclick="goToStep(5)">5<div class="ob-dot-label">Publish</div></div>
+  </div>
+</div>
+
+<!-- ─── STEPS ─── -->
+<div class="ob-main">
+
+  <!-- STEP 1: IMPORT -->
+  <div class="ob-step active" id="step-1">
+    <div class="step-eyebrow">// Step 1 of 5</div>
+    <h1 class="step-title">Start with what<br>you already <em>have.</em></h1>
+    <p class="step-sub">Import your existing resume or start fresh — either way, your vault will be ready in minutes. Estimated time: <strong style="color:var(--text-primary)">~8 minutes</strong> to a complete profile.</p>
+
+    <div class="import-options">
+      <div class="import-option" id="opt-pdf" onclick="selectImport('pdf')">
+        <div class="import-icon">📄</div>
+        <div class="import-label">Upload resume PDF</div>
+        <div class="import-desc">We'll parse it into structured vault records automatically</div>
+        <div class="import-eta">~2 min setup</div>
+      </div>
+      <div class="import-option" id="opt-linkedin" onclick="selectImport('linkedin')">
+        <div class="import-icon">🔗</div>
+        <div class="import-label">Import from LinkedIn</div>
+        <div class="import-desc">Download your LinkedIn data export and upload it here</div>
+        <div class="import-eta">~3 min setup</div>
+      </div>
+      <div class="import-option" id="opt-json" onclick="selectImport('json')">
+        <div class="import-icon">{ }</div>
+        <div class="import-label">JSON Resume</div>
+        <div class="import-desc">Already have a JSON Resume file? Import it directly</div>
+        <div class="import-eta">~1 min setup</div>
+      </div>
+      <div class="import-option selected" id="opt-fresh" onclick="selectImport('fresh')">
+        <div class="import-icon">✦</div>
+        <div class="import-label">Start fresh</div>
+        <div class="import-desc">Build your vault step by step with our guided setup</div>
+        <div class="import-eta">~8 min setup</div>
+      </div>
+    </div>
+
+    <div class="upload-zone" id="upload-zone" style="display:none" onclick="showToast('File picker — connects to file system in the real app')">
+      <div class="upload-icon">⬆</div>
+      <div class="upload-label">Drop your file here or click to browse</div>
+      <div class="upload-sub">PDF, DOCX · Max 10MB · Your data stays private</div>
+    </div>
+
+    <div style="margin-top:1rem;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;align-items:flex-start;gap:10px;">
+      <div style="font-size:16px;flex-shrink:0">🔒</div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">
+        <strong style="color:var(--text-primary)">Your data is always yours.</strong> Everything you add to FOLIO stays private by default. You control exactly what appears on your public profile, record by record.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: BASICS -->
+  <div class="ob-step" id="step-2">
+    <div class="step-eyebrow">// Step 2 of 5</div>
+    <h1 class="step-title">Tell us who<br>you <em>are.</em></h1>
+    <p class="step-sub">This is what visitors see first on your public profile. Keep your headline sharp — one sentence, your professional identity.</p>
+
+    <div class="avatar-picker">
+      <div class="avatar-preview" id="avatar-preview">?</div>
+      <div>
+        <div class="avatar-actions">
+          <button class="avatar-btn" onclick="showToast('Photo upload — connects to file system in real app')">📷 Upload photo</button>
+          <button class="avatar-btn" onclick="generateInitialsAvatar()">✦ Generate initials avatar</button>
+        </div>
+        <div class="avatar-colors" id="avatar-colors">
+          <div class="color-swatch active" style="background:rgba(0,255,135,0.3)" onclick="setAvatarColor(this,'rgba(0,255,135,0.18)','#00cc6a')"></div>
+          <div class="color-swatch" style="background:rgba(68,136,255,0.4)" onclick="setAvatarColor(this,'rgba(68,136,255,0.18)','#4488ff')"></div>
+          <div class="color-swatch" style="background:rgba(200,169,110,0.5)" onclick="setAvatarColor(this,'rgba(200,169,110,0.18)','#c8a96e')"></div>
+          <div class="color-swatch" style="background:rgba(107,95,255,0.5)" onclick="setAvatarColor(this,'rgba(107,95,255,0.18)','#6b5fff')"></div>
+          <div class="color-swatch" style="background:rgba(255,153,0,0.4)" onclick="setAvatarColor(this,'rgba(255,153,0,0.18)','#ff9900')"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First name</label>
+        <input class="form-input" type="text" id="first-name" placeholder="Sarah" oninput="updateAvatar()">
+        <div class="form-error" id="err-first">Required</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last name</label>
+        <input class="form-input" type="text" id="last-name" placeholder="Kim" oninput="updateAvatar()">
+        <div class="form-error" id="err-last">Required</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Professional headline <span>(required)</span></label>
+      <div class="headline-wrap">
+        <input class="form-input" type="text" id="headline" placeholder="Principal Product Designer at Acme Corp" maxlength="120" oninput="updateHeadlineCount()">
+        <span class="headline-count" id="headline-count">0/120</span>
+      </div>
+      <div class="form-error" id="err-headline">Please write a short headline</div>
+      <div class="form-hint">One sentence. Your title + context. This is your first impression.</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <input class="form-input" type="text" id="location" placeholder="New York, NY">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Website <span>(optional)</span></label>
+        <input class="form-input" type="url" id="website" placeholder="https://yoursite.com">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">LinkedIn URL <span>(optional)</span></label>
+      <input class="form-input" type="url" id="linkedin" placeholder="https://linkedin.com/in/yourname">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Availability</label>
+      <select class="form-select" id="availability">
+        <option value="">Not specified</option>
+        <option value="open">Open to full-time roles</option>
+        <option value="contract">Open to contract / freelance</option>
+        <option value="both">Open to both</option>
+        <option value="not-looking">Not currently looking</option>
+        <option value="mentoring">Open to mentoring others</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- STEP 3: WORK -->
+  <div class="ob-step" id="step-3">
+    <div class="step-eyebrow">// Step 3 of 5</div>
+    <h1 class="step-title">Your work<br><em>history.</em></h1>
+    <p class="step-sub">Add your most recent role first. You can add more later — for now, at least one role with your best highlights will power the AI tools.</p>
+
+    <div class="work-entries" id="work-entries">
+      <!-- First entry pre-opened -->
+      <div class="work-entry open" id="entry-0">
+        <div class="work-entry-header" onclick="toggleEntry(0)">
+          <div class="work-entry-logo" id="logo-0">?</div>
+          <div class="work-entry-info">
+            <div class="work-entry-title" id="entry-title-0">New role</div>
+            <div class="work-entry-sub" id="entry-sub-0">Enter details below</div>
+          </div>
+          <div class="work-entry-actions">
+            <button class="entry-action del" onclick="event.stopPropagation();removeEntry(0)" title="Remove">✕</button>
+          </div>
+        </div>
+        <div class="work-entry-body">
+          <div class="form-group">
+            <label class="form-label">Company / Employer</label>
+            <input class="form-input" type="text" placeholder="Acme Corp" oninput="updateEntryHeader(0,this,'company')">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Your title</label>
+              <input class="form-input" type="text" placeholder="Senior Designer" oninput="updateEntryHeader(0,this,'title')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select class="form-select">
+                <option>Full-time</option>
+                <option>Part-time</option>
+                <option>Contract</option>
+                <option>Internship</option>
+                <option>Freelance</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Start date</label>
+              <input class="form-input" type="month">
+            </div>
+            <div class="form-group">
+              <label class="form-label">End date</label>
+              <input class="form-input" type="month" placeholder="Present (leave blank)">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Key accomplishments <span>(optional — AI can help)</span></label>
+            <textarea class="form-textarea" placeholder="What did you accomplish? Focus on impact and numbers.&#10;&#10;Example: Led redesign of the checkout flow, reducing cart abandonment by 22%"></textarea>
+          </div>
+          <div class="ai-assist-box">
+            <div class="ai-assist-label">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              AI assist
+            </div>
+            <div class="ai-assist-body">Paste a job description or free-text description of your role — FOLIO will extract structured highlights and suggest quantified bullets.</div>
+            <button class="btn btn-ghost" style="margin-top:10px;font-size:12px;padding:6px 14px" onclick="showToast('AI extraction — available once we have role details')">Extract highlights →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-bottom:1rem" onclick="addWorkEntry()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add another role
+    </button>
+
+    <div style="padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);font-size:12px;color:var(--text-secondary);">
+      💡 <strong style="color:var(--text-primary)">Tip:</strong> You can also add work records later through the vault or the AI chat. Nothing is locked in during onboarding.
+    </div>
+  </div>
+
+  <!-- STEP 4: SKILLS -->
+  <div class="ob-step" id="step-4">
+    <div class="step-eyebrow">// Step 4 of 5</div>
+    <h1 class="step-title">Your skills<br><em>inventory.</em></h1>
+    <p class="step-sub">Add at least 5 skills to enable AI gap analysis and job matching. These are chips on your public profile — be specific and honest.</p>
+
+    <div class="skill-add-row">
+      <input class="skill-add-input" type="text" id="skill-input" placeholder="Type a skill and press Enter..." onkeydown="handleSkillKey(event)" oninput="filterSuggestions(this.value)">
+      <button class="skill-add-btn" onclick="addSkillFromInput()">Add</button>
+    </div>
+
+    <div class="skills-bucket" id="skills-bucket">
+      <div style="color:var(--text-muted);font-size:12px;font-family:var(--font-mono);padding:4px;display:flex;align-items:center;gap:6px;" id="skills-empty-hint">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+        Your skills will appear here
+      </div>
+    </div>
+
+    <div class="skill-target-note" id="skill-target-note">
+      <strong>0 / 5</strong> minimum skills added
+    </div>
+
+    <div style="margin:1.25rem 0 0.75rem">
+      <div class="suggested-label">Suggested based on your work history</div>
+      <div class="suggested-skills" id="suggested-skills">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <div style="margin-top:1.25rem">
+      <div class="suggested-label">By category</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px" id="category-skills"></div>
+    </div>
+  </div>
+
+  <!-- STEP 5: PUBLISH -->
+  <div class="ob-step" id="step-5">
+    <div class="step-eyebrow">// Step 5 of 5</div>
+    <h1 class="step-title">You're almost<br><em>live.</em></h1>
+    <p class="step-sub">Here's a preview of how your profile will look. You can publish now or keep it private while you finish building your vault.</p>
+
+    <div class="confetti-area"></div>
+
+    <!-- Profile preview -->
+    <div class="profile-preview-card">
+      <div class="preview-header">
+        <div class="preview-avatar" id="prev-avatar">?</div>
+        <div>
+          <div class="preview-name" id="prev-name">Your Name</div>
+          <div class="preview-title" id="prev-title">Your headline will appear here</div>
+          <div class="preview-handle" id="prev-handle">@your-handle</div>
+        </div>
+      </div>
+      <div class="preview-body">
+        <div class="preview-section-label">Skills</div>
+        <div class="preview-skills" id="prev-skills">
+          <span class="p-chip" style="color:var(--text-muted);border-style:dashed">No skills yet</span>
+        </div>
+        <div class="preview-section-label" style="margin-top:10px">Work</div>
+        <div class="preview-entries" id="prev-entries">
+          <div style="font-size:13px;color:var(--text-muted);font-family:var(--font-mono)">No work records yet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completeness -->
+    <div class="completeness-preview" id="comp-preview">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Vault health</span>
+        <span style="font-size:18px;font-family:var(--font-mono);font-weight:700;color:var(--accent-text)" id="comp-pct-display">0%</span>
+      </div>
+      <div class="comp-row">
+        <span class="comp-label">Work</span>
+        <div class="comp-bar-wrap"><div class="comp-bar" id="bar-work" style="width:0%;background:var(--blue)"></div></div>
+        <span class="comp-pct" id="pct-work">0%</span>
+      </div>
+      <div class="comp-row">
+        <span class="comp-label">Skills</span>
+        <div class="comp-bar-wrap"><div class="comp-bar" id="bar-skills" style="width:0%;background:var(--accent-text)"></div></div>
+        <span class="comp-pct" id="pct-skills">0%</span>
+      </div>
+      <div class="comp-row">
+        <span class="comp-label">Basics</span>
+        <div class="comp-bar-wrap"><div class="comp-bar" id="bar-basics" style="width:0%;background:var(--gold)"></div></div>
+        <span class="comp-pct" id="pct-basics">0%</span>
+      </div>
+      <div class="comp-row">
+        <span class="comp-label">README</span>
+        <div class="comp-bar-wrap"><div class="comp-bar" id="bar-readme" style="width:0%;background:rgba(255,153,0,0.8)"></div></div>
+        <span class="comp-pct" id="pct-readme">0%</span>
+      </div>
+    </div>
+
+    <!-- Visibility -->
+    <div class="visibility-row">
+      <div>
+        <div class="vis-label">Make my profile public</div>
+        <div class="vis-sub">Recruiters and visitors can find you at folio.so/@handle</div>
+      </div>
+      <button class="toggle-switch on" id="vis-toggle" onclick="toggleVisibility(this)">
+        <div class="toggle-knob"></div>
+      </button>
+    </div>
+
+    <div style="font-size:12px;color:var(--text-muted);font-family:var(--font-mono);line-height:1.6;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);">
+      ✦ Your profile is private by default. Each vault record also has its own visibility toggle — you're always in full control of what's shared.
+    </div>
+  </div>
+
+</div><!-- /ob-main -->
+
+<!-- ─── BOTTOM NAV ─── -->
+<div class="ob-bottom">
+  <div class="ob-time" id="ob-time-est">~7 min remaining</div>
+  <div class="ob-nav-btns">
+    <button class="btn btn-ghost" id="back-btn" onclick="prevStep()" style="display:none">← Back</button>
+    <button class="btn btn-primary" id="next-btn" onclick="nextStep()">
+      <span id="next-label">Continue</span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
+
+<script>
+/* ─── STATE ─── */
+let currentStep = 1;
+const TOTAL = 5;
+let importMode = 'fresh';
+let addedSkills = new Set();
+let workEntryCount = 1;
+let avatarBg = 'rgba(0,255,135,0.18)';
+let avatarColor = '#00cc6a';
+const timeEsts = ['~7 min remaining','~6 min remaining','~4 min remaining','~2 min remaining','Almost done!'];
+
+const suggestedSkills = ['Figma','TypeScript','React','Design Systems','Python','User Research','SQL','Node.js','Product Strategy','Data Analysis','AWS','Kubernetes'];
+const skillCategories = {
+  'Design':['Figma','Sketch','Prototyping','UI Design','UX Research','Design Systems','Accessibility','Motion Design','Illustration'],
+  'Engineering':['JavaScript','TypeScript','React','Python','Go','Rust','Node.js','SQL','AWS','Docker','Kubernetes','PostgreSQL'],
+  'Product':['Product Strategy','Roadmapping','OKRs','A/B Testing','Analytics','Stakeholder Mgmt','Jira','SQL'],
+  'Data':['Python','SQL','dbt','Snowflake','Spark','ML','Statistics','Tableau','Looker'],
+};
+
+/* ─── STEP NAVIGATION ─── */
+function nextStep(){
+  if(currentStep === 2){
+    const fn = document.getElementById('first-name').value.trim();
+    const ln = document.getElementById('last-name').value.trim();
+    const hl = document.getElementById('headline').value.trim();
+    let ok = true;
+    if(!fn){document.getElementById('err-first').classList.add('show');document.getElementById('first-name').classList.add('err');ok=false;}else{document.getElementById('err-first').classList.remove('show');document.getElementById('first-name').classList.remove('err');}
+    if(!ln){document.getElementById('err-last').classList.add('show');document.getElementById('last-name').classList.add('err');ok=false;}else{document.getElementById('err-last').classList.remove('show');document.getElementById('last-name').classList.remove('err');}
+    if(!hl){document.getElementById('err-headline').classList.add('show');document.getElementById('headline').classList.add('err');ok=false;}else{document.getElementById('err-headline').classList.remove('show');document.getElementById('headline').classList.remove('err');}
+    if(!ok)return;
+  }
+  if(currentStep < TOTAL) goToStep(currentStep + 1);
+  else finishOnboarding();
+}
+
+function prevStep(){
+  if(currentStep > 1) goToStep(currentStep - 1);
+}
+
+function goToStep(n){
+  if(n < 1 || n > TOTAL) return;
+  document.getElementById('step-' + currentStep).classList.remove('active');
+  currentStep = n;
+  document.getElementById('step-' + n).classList.add('active');
+  updateStepperUI();
+  if(n === 5) updatePreview();
+}
+
+function updateStepperUI(){
+  const labels = ['Import','Basics','Work','Skills','Publish'];
+  const stepLabels = ['Import','Basics','Work History','Skills','Publish'];
+  document.getElementById('step-label').textContent = `Step ${currentStep} of ${TOTAL} · ${stepLabels[currentStep-1]}`;
+  document.getElementById('progress-fill').style.width = (currentStep / TOTAL * 100) + '%';
+  document.getElementById('ob-time-est').textContent = timeEsts[currentStep-1];
+  document.getElementById('back-btn').style.display = currentStep > 1 ? '' : 'none';
+  document.getElementById('next-label').textContent = currentStep === TOTAL ? 'Publish my FOLIO' : 'Continue';
+
+  for(let i=1;i<=TOTAL;i++){
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.remove('active','done');
+    if(i === currentStep) dot.classList.add('active');
+    else if(i < currentStep){ dot.classList.add('done'); dot.textContent='✓'; dot.innerHTML='✓<div class="ob-dot-label">' + labels[i-1] + '</div>'; }
+    else { dot.textContent=i; dot.innerHTML=i+'<div class="ob-dot-label">'+labels[i-1]+'</div>'; }
+  }
+  for(let i=1;i<TOTAL;i++){
+    const conn=document.getElementById('conn-' + i);
+    if(conn) conn.classList.toggle('done', i < currentStep);
+  }
+}
+
+/* ─── STEP 1 ─── */
+function selectImport(mode){
+  importMode = mode;
+  ['pdf','linkedin','json','fresh'].forEach(m=>{
+    document.getElementById('opt-'+m).classList.toggle('selected', m===mode);
+  });
+  document.getElementById('upload-zone').style.display = mode !== 'fresh' ? 'block' : 'none';
+}
+
+/* ─── STEP 2 ─── */
+function updateAvatar(){
+  const fn = document.getElementById('first-name').value.trim();
+  const ln = document.getElementById('last-name').value.trim();
+  const initials = ((fn[0]||'') + (ln[0]||'')).toUpperCase() || '?';
+  document.getElementById('avatar-preview').textContent = initials;
+  document.getElementById('avatar-preview').style.background = avatarBg;
+  document.getElementById('avatar-preview').style.color = avatarColor;
+  document.getElementById('prev-avatar').textContent = initials;
+  document.getElementById('prev-avatar').style.background = avatarBg;
+  document.getElementById('prev-avatar').style.color = avatarColor;
+  document.getElementById('prev-name').textContent = [fn,ln].filter(Boolean).join(' ') || 'Your Name';
+  document.getElementById('prev-handle').textContent = '@' + ([fn,ln].filter(Boolean).join('-').toLowerCase().replace(/[^a-z0-9-]/g,'') || 'your-handle');
+}
+
+function updateHeadlineCount(){
+  const v = document.getElementById('headline').value.length;
+  const el = document.getElementById('headline-count');
+  el.textContent = v + '/120';
+  el.className = 'headline-count' + (v > 100 ? ' warn' : '') + (v >= 120 ? ' over' : '');
+  document.getElementById('prev-title').textContent = document.getElementById('headline').value || 'Your headline will appear here';
+}
+
+function generateInitialsAvatar(){
+  updateAvatar();
+  showToast('Initials avatar applied ✦');
+}
+
+function setAvatarColor(el, bg, fg){
+  avatarBg = bg; avatarColor = fg;
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  updateAvatar();
+}
+
+/* ─── STEP 3 ─── */
+let entryData = [{ company:'', title:'' }];
+
+function updateEntryHeader(idx, input, field){
+  entryData[idx] = entryData[idx] || {};
+  entryData[idx][field] = input.value;
+  const title = entryData[idx].title || 'New role';
+  const sub = entryData[idx].company || 'Enter details below';
+  document.getElementById('entry-title-' + idx).textContent = title;
+  document.getElementById('entry-sub-' + idx).textContent = sub;
+  const logo = document.getElementById('logo-' + idx);
+  if(logo) logo.textContent = (sub[0]||'?').toUpperCase();
+}
+
+function toggleEntry(idx){
+  document.getElementById('entry-' + idx).classList.toggle('open');
+}
+
+function addWorkEntry(){
+  const idx = workEntryCount++;
+  entryData.push({company:'',title:''});
+  const div = document.createElement('div');
+  div.className = 'work-entry';
+  div.id = 'entry-' + idx;
+  div.innerHTML = `
+    <div class="work-entry-header" onclick="toggleEntry(${idx})">
+      <div class="work-entry-logo" id="logo-${idx}">?</div>
+      <div class="work-entry-info">
+        <div class="work-entry-title" id="entry-title-${idx}">New role</div>
+        <div class="work-entry-sub" id="entry-sub-${idx}">Enter details below</div>
+      </div>
+      <div class="work-entry-actions">
+        <button class="entry-action del" onclick="event.stopPropagation();removeEntry(${idx})" title="Remove">✕</button>
+      </div>
+    </div>
+    <div class="work-entry-body" style="display:block;border-top:1px solid var(--border);padding-top:14px;">
+      <div class="form-group">
+        <label class="form-label">Company / Employer</label>
+        <input class="form-input" type="text" placeholder="Company name" oninput="updateEntryHeader(${idx},this,'company')">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Your title</label>
+          <input class="form-input" type="text" placeholder="Your title" oninput="updateEntryHeader(${idx},this,'title')">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-select"><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Internship</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Start date</label><input class="form-input" type="month"></div>
+        <div class="form-group"><label class="form-label">End date</label><input class="form-input" type="month"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Key accomplishments</label>
+        <textarea class="form-textarea" placeholder="What did you accomplish?"></textarea>
+      </div>
+    </div>
+  `;
+  document.getElementById('work-entries').appendChild(div);
+  div.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function removeEntry(idx){
+  const el = document.getElementById('entry-' + idx);
+  if(el) el.remove();
+  showToast('Role removed');
+}
+
+/* ─── STEP 4 ─── */
+function renderSuggestedSkills(){
+  document.getElementById('suggested-skills').innerHTML = suggestedSkills.map(s =>
+    `<div class="suggested-chip ${addedSkills.has(s)?'':''}' onclick="addSkill('${s}')">${s}</div>`
+  ).join('');
+
+  const catDiv = document.getElementById('category-skills');
+  catDiv.innerHTML = Object.entries(skillCategories).map(([cat, skills]) => `
+    <div>
+      <div class="suggested-label">${cat}</div>
+      <div class="suggested-skills" style="margin-top:5px">
+        ${skills.map(s => `<div class="suggested-chip" onclick="addSkill('${s}')">${s}</div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+renderSuggestedSkills();
+
+function addSkill(name){
+  const normalized = name.trim();
+  if(!normalized || addedSkills.has(normalized)) return;
+  addedSkills.add(normalized);
+  renderSkillBucket();
+  updateSkillTarget();
+}
+
+function addSkillFromInput(){
+  const input = document.getElementById('skill-input');
+  addSkill(input.value);
+  input.value = '';
+}
+
+function handleSkillKey(e){
+  if(e.key === 'Enter'){ e.preventDefault(); addSkillFromInput(); }
+}
+
+function removeSkill(name){
+  addedSkills.delete(name);
+  renderSkillBucket();
+  updateSkillTarget();
+}
+
+function filterSuggestions(q){}
+
+function renderSkillBucket(){
+  const bucket = document.getElementById('skills-bucket');
+  const hint = document.getElementById('skills-empty-hint');
+  if(addedSkills.size === 0){
+    bucket.innerHTML = '';
+    bucket.appendChild(hint || (() => {
+      const d = document.createElement('div');
+      d.id='skills-empty-hint';
+      d.style.cssText='color:var(--text-muted);font-size:12px;font-family:var(--font-mono);padding:4px;display:flex;align-items:center;gap:6px;';
+      d.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>Your skills will appear here';
+      return d;
+    })());
+    return;
+  }
+  bucket.innerHTML = [...addedSkills].map(s =>
+    `<div class="s-tag">${s}<span class="s-tag-remove" onclick="removeSkill('${s}')">×</span></div>`
+  ).join('');
+}
+
+function updateSkillTarget(){
+  const n = addedSkills.size;
+  const note = document.getElementById('skill-target-note');
+  const color = n >= 5 ? 'var(--accent-text)' : (n >= 3 ? 'var(--gold)' : 'var(--text-muted)');
+  note.innerHTML = `<strong style="color:${color}">${n} / 5</strong> minimum skills added${n>=5?' ✦':''}`;
+}
+
+/* ─── STEP 5 ─── */
+function updatePreview(){
+  // Avatar + name from step 2
+  const fn = document.getElementById('first-name').value.trim();
+  const ln = document.getElementById('last-name').value.trim();
+  const initials = ((fn[0]||'') + (ln[0]||'')).toUpperCase() || '?';
+  document.getElementById('prev-avatar').textContent = initials;
+  document.getElementById('prev-name').textContent = [fn,ln].filter(Boolean).join(' ') || 'Your Name';
+  document.getElementById('prev-title').textContent = document.getElementById('headline').value || '—';
+  document.getElementById('prev-handle').textContent = '@' + ([fn,ln].filter(Boolean).join('-').toLowerCase().replace(/[^a-z0-9-]/g,'') || 'your-handle');
+
+  // Skills
+  const skillsEl = document.getElementById('prev-skills');
+  if(addedSkills.size > 0){
+    skillsEl.innerHTML = [...addedSkills].slice(0,6).map(s=>`<span class="p-chip">${s}</span>`).join('');
+  }
+
+  // Work entries
+  const entriesEl = document.getElementById('prev-entries');
+  const filled = entryData.filter(e => e.company || e.title);
+  if(filled.length > 0){
+    entriesEl.innerHTML = filled.map(e => `
+      <div class="preview-entry">
+        <div class="pe-dot"></div>
+        <div class="pe-text">${e.title||'Role'} · ${e.company||'Company'}</div>
+      </div>
+    `).join('');
+  }
+
+  // Completeness
+  const hasName = fn && ln;
+  const hasHeadline = !!document.getElementById('headline').value.trim();
+  const hasWork = entryData.some(e => e.company || e.title);
+  const hasSkills = addedSkills.size >= 5;
+  const basicsScore = ((hasName?50:0) + (hasHeadline?50:0));
+  const workScore = hasWork ? 100 : 0;
+  const skillScore = Math.min(100, (addedSkills.size / 5) * 100);
+  const total = Math.round((basicsScore * 0.2 + workScore * 0.45 + skillScore * 0.35));
+
+  document.getElementById('comp-pct-display').textContent = total + '%';
+  document.getElementById('bar-basics').style.width = basicsScore + '%';
+  document.getElementById('pct-basics').textContent = basicsScore + '%';
+  document.getElementById('bar-work').style.width = workScore + '%';
+  document.getElementById('pct-work').textContent = workScore + '%';
+  document.getElementById('bar-skills').style.width = skillScore + '%';
+  document.getElementById('pct-skills').textContent = Math.round(skillScore) + '%';
+  document.getElementById('bar-readme').style.width = '0%';
+  document.getElementById('pct-readme').textContent = '0%';
+}
+
+function toggleVisibility(btn){
+  const isOn = btn.classList.contains('on');
+  btn.classList.toggle('on', !isOn);
+  btn.classList.toggle('off', isOn);
+  showToast(isOn ? 'Profile set to private' : 'Profile set to public');
+}
+
+/* ─── FINISH ─── */
+function finishOnboarding(){
+  showToast('Publishing your FOLIO...');
+  setTimeout(() => {
+    window.location.href = 'folio-dashboard.html';
+  }, 1800);
+}
+
+/* ─── TOAST ─── */
+let toastTimer;
+function showToast(msg){
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => document.getElementById('toast').classList.remove('show'), 3000);
+}
+
+/* ─── KEYBOARD ─── */
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') nextStep();
+});
+
+/* ─── INIT ─── */
+updateStepperUI();
+</script>
+</body>
+</html>
