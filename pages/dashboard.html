@@ -544,22 +544,44 @@ window.setTab = function(el){
 }
 
 /* CHAT */
-const chatResponses={
-  'Add a new role':"Sure — what company did you work at?",
-  'Improve highlights':"Which role would you like to improve? I can help quantify your impact.",
-  'Check a JD':"Paste the job description and I'll run a full gap analysis.",
-  'Generate resume PDF':"Generating your snapshot PDF now. For a tailored resume, add a job target first.",
-  'What is my vault score?':"Your vault health is 74/100. Top action: add 3 more skills to reach 80%."
-};
+const chatHistory = [];
 
-window.sendChat = function(text){
+window.sendChat = async function(text){
+  if (!currentUser) return;
   document.getElementById('chat-chips').style.display='none';
   addMsg('user',text);
+  chatHistory.push({ role: 'user', content: text });
+
   showTyping();
-  setTimeout(()=>{
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const response = await fetch('https://djyvigazxpbepifwslyt.supabase.co/functions/v1/career-coach', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({
+        messages: chatHistory,
+        userId: currentUser.id
+      })
+    });
+
+    const result = await response.json();
     removeTyping();
-    addMsg('assistant',chatResponses[text]||'Got it. Let me help with that. What details can you share?');
-  },900+Math.random()*600);
+
+    if (result.error) throw new Error(result.error);
+
+    const aiMessage = result.choices[0].message.content;
+    addMsg('assistant', aiMessage);
+    chatHistory.push({ role: 'assistant', content: aiMessage });
+
+  } catch (error) {
+    removeTyping();
+    addMsg('assistant', "I'm having trouble connecting to my brain. Ensure the Edge Function is deployed and secrets are set in Supabase.");
+    console.error('Chat Error:', error);
+  }
 }
 
 window.sendChatFromInput = function(){
