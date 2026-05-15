@@ -225,6 +225,10 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         Job Targets <span class="nav-count">3</span>
       </div>
+      <div class="nav-item" onclick="switchView('share',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Share Profile
+      </div>
       <div class="nav-item" onclick="showToast('Generating PDF snapshot...')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download PDF
@@ -341,47 +345,46 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
     <div class="view" id="view-credentials"><div class="page-header"><div class="page-title">Credentials</div></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 3 credentials</div></div>
     <div class="view" id="view-projects"><div class="page-header"><div class="page-title">Projects</div></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 2 projects</div></div>
     <div class="view" id="view-jobs"><div class="page-header"><div class="page-title">Job Targets</div><button class="btn btn-primary btn-sm" onclick="showToast('Add job target — paste a JD')">+ Add target</button></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 3 active targets</div></div>
-    <div class="view" id="view-profile-edit">
+    <div class="view" id="view-share">
       <div class="page-header">
-        <div><div class="page-title">Edit Profile</div><div class="page-meta">Personalize your public FOLIO page</div></div>
-        <button class="btn btn-primary" onclick="saveProfile()">Save changes</button>
+        <div><div class="page-title">Share Your Profile</div><div class="page-meta">Wireless networking & digital business cards</div></div>
       </div>
-      <div class="record-list" style="padding:1.5rem; background:var(--surface); display:flex; flex-direction:column; gap:1.25rem;">
+      
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem;">
         
-        <!-- Media Row -->
-        <div style="display:grid; grid-template-columns:auto 1fr; gap:1.5rem; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.5rem; margin-bottom:0.5rem;">
-          <div style="position:relative">
-            <div class="user-avatar" id="edit-avatar-preview" style="width:80px; height:80px; font-size:24px; border-radius:var(--radius-lg)">ME</div>
-            <button class="act-btn" style="position:absolute; bottom:-5px; right:-5px; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#000; border:none" onclick="document.getElementById('avatar-input').click()">+</button>
-            <input type="file" id="avatar-input" hidden accept="image/*" onchange="handleAvatarUpload(this)">
+        <!-- QR Code Card -->
+        <div class="record-list" style="padding:1.5rem; background:var(--surface); display:flex; flex-direction:column; align-items:center; text-align:center; gap:1rem;">
+          <div class="nav-label" style="padding:0">Branded QR Code</div>
+          <div id="qrcode-container" style="background:#fff; padding:12px; border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center;">
+            <canvas id="qr-code"></canvas>
           </div>
-          <div>
-            <div class="nav-label" style="padding:0; margin-bottom:8px">Profile Artifacts</div>
-            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('resume-input').click()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Upload PDF Resume
-            </button>
-            <input type="file" id="resume-input" hidden accept=".pdf" onchange="handleResumeUpload(this)">
-            <div id="resume-status" style="font-size:11px; color:var(--text-muted); margin-top:6px; font-family:var(--font-mono)">// No PDF attached</div>
+          <div style="font-size:12px; color:var(--text-secondary); line-height:1.5;">
+            Recruiters can scan this to open your profile instantly.<br>
+            <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="downloadQR()">Download PNG</button>
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="nav-label" style="padding:0">Full Name</label>
-          <input class="chat-ta" id="edit-name" style="border:1px solid var(--border-bright); padding:10px; width:100%; border-radius:var(--radius)" placeholder="Your Name">
+        <!-- Digital Handshake Card -->
+        <div class="record-list" style="padding:1.5rem; background:var(--surface); display:flex; flex-direction:column; gap:1.25rem;">
+          <div>
+            <div class="nav-label" style="padding:0; margin-bottom:8px">vCard (Contact Card)</div>
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px">Download a file that adds you to a phone's contacts automatically.</p>
+            <button class="btn btn-primary btn-sm" onclick="downloadVCard()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Generate .vcf File
+            </button>
+          </div>
+
+          <div style="border-top:1px solid var(--border); padding-top:1.25rem;">
+            <div class="nav-label" style="padding:0; margin-bottom:8px">NFC & Physical Tags</div>
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px">Tap your phone to an NFC sticker to write your FOLIO URL.</p>
+            <div style="background:var(--accent-dim); border:1px solid rgba(0,255,135,.15); padding:10px; border-radius:var(--radius); font-family:var(--font-mono); font-size:11px; color:var(--accent-text)">
+              URL: <span class="user-url">https://folio.so/@...</span>
+            </div>
+            <p style="font-size:10px; color:var(--text-muted); margin-top:8px">Recommended App: "NFC Tools" on iOS/Android.</p>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="nav-label" style="padding:0">Headline</label>
-          <input class="chat-ta" id="edit-headline" style="border:1px solid var(--border-bright); padding:10px; width:100%; border-radius:var(--radius)" placeholder="e.g. Principal Product Designer">
-        </div>
-        <div class="form-group">
-          <label class="nav-label" style="padding:0">Bio / About</label>
-          <textarea class="chat-ta" id="edit-bio" style="border:1px solid var(--border-bright); padding:10px; width:100%; border-radius:var(--radius); min-height:120px" placeholder="Write a few sentences about yourself..."></textarea>
-        </div>
-        <div class="form-group">
-          <label class="nav-label" style="padding:0">Location</label>
-          <input class="chat-ta" id="edit-location" style="border:1px solid var(--border-bright); padding:10px; width:100%; border-radius:var(--radius)" placeholder="e.g. New York, NY">
-        </div>
+
       </div>
     </div>
 
@@ -390,6 +393,7 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
 <div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <script type="module">
 import { getCurrentUser, signOut } from '../lib/auth.js';
 import { getOwnProfile, updateProfile } from '../lib/profiles.js';
@@ -397,6 +401,7 @@ import { uploadAvatar, uploadResume } from '../lib/media.js';
 
 let currentUser = null;
 let currentProfile = null;
+let qr = null;
 
 // Check for existing session
 async function checkSession() {
@@ -424,6 +429,8 @@ async function checkSession() {
 function updateUI() {
   if (!currentProfile) return;
 
+  const profileUrl = `${window.location.origin}/@${currentProfile.username}`;
+
   // Update handle in UI
   const handles = document.querySelectorAll('.user-handle');
   handles.forEach(h => h.textContent = '@' + currentProfile.username);
@@ -431,6 +438,23 @@ function updateUI() {
   // Update name
   const names = document.querySelectorAll('.user-name');
   names.forEach(n => n.textContent = currentProfile.full_name || 'User');
+
+  // Update Profile URL displays
+  const urls = document.querySelectorAll('.user-url');
+  urls.forEach(u => u.textContent = profileUrl);
+
+  // Initialize/Update QR Code
+  if (!qr) {
+    qr = new QRious({
+      element: document.getElementById('qr-code'),
+      size: 200,
+      value: profileUrl,
+      foreground: '#000',
+      level: 'H'
+    });
+  } else {
+    qr.value = profileUrl;
+  }
 
   // Update avatar initial
   const avatars = document.querySelectorAll('.user-avatar');
@@ -468,6 +492,33 @@ function updateUI() {
 }
 
 checkSession();
+
+window.downloadQR = function() {
+  const canvas = document.getElementById('qr-code');
+  const link = document.createElement('a');
+  link.download = `folio-qr-${currentProfile.username}.png`;
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+window.downloadVCard = function() {
+  const profileUrl = `${window.location.origin}/@${currentProfile.username}`;
+  const vcard = `BEGIN:VCARD
+VERSION:3.0
+FN:${currentProfile.full_name || currentProfile.username}
+TITLE:${currentProfile.headline || ''}
+NOTE:View full profile at ${profileUrl}
+URL:${profileUrl}
+END:VCARD`;
+
+  const blob = new Blob([vcard], { type: 'text/vcard' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${currentProfile.username}.vcf`;
+  link.click();
+  showToast('✦ vCard generated');
+}
 
 window.handleAvatarUpload = async function(input) {
   if (!input.files || !input.files[0]) return;
