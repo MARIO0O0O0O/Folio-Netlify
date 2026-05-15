@@ -1,0 +1,31 @@
+name: Deploy Supabase Functions
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/functions/**'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_ID: djyvigazxpbepifwslyt
+      XAI_API_KEY: xai-DefSPBiH5gNdAoVSB6mKRirJ9dJeKmL2Zs6q9aObIGF9VzABsIDO8sxfBIKmlalYZ95ix3K6xjcTi9Iy
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Set xAI Secret
+        run: supabase secrets set --project-ref $PROJECT_ID XAI_API_KEY=$XAI_API_KEY
+
+      - name: Deploy Career Coach Function
+        run: supabase functions deploy career-coach --project-ref $PROJECT_ID --no-verify-jwt
