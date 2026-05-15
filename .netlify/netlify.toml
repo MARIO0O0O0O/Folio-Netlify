@@ -40,7 +40,7 @@ Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
 [[redirects]]
 from = "/invest"
-to = "/support.html"
+to = "/pages/support.html"
 status = 301.0
 force = false
 
@@ -52,7 +52,7 @@ force = false
 
 [[redirects]]
 from = "/app"
-to = "/dashboard.html"
+to = "/pages/dashboard.html"
 status = 200.0
 force = false
 
@@ -64,7 +64,7 @@ force = false
 
 [[redirects]]
 from = "/app/*"
-to = "/dashboard.html"
+to = "/pages/dashboard.html"
 status = 200.0
 force = false
 
@@ -76,7 +76,7 @@ force = false
 
 [[redirects]]
 from = "/login"
-to = "/auth.html"
+to = "/pages/auth.html"
 status = 301.0
 force = false
 
@@ -88,7 +88,7 @@ force = false
 
 [[redirects]]
 from = "/signup"
-to = "/auth.html"
+to = "/pages/auth.html"
 status = 301.0
 force = false
 
@@ -100,7 +100,7 @@ force = false
 
 [[redirects]]
 from = "/register"
-to = "/auth.html"
+to = "/pages/auth.html"
 status = 301.0
 force = false
 
@@ -124,7 +124,7 @@ force = false
 
 [[redirects]]
 from = "/donate"
-to = "/support.html"
+to = "/pages/support.html"
 status = 301.0
 force = false
 
@@ -136,8 +136,20 @@ force = false
 
 [[redirects]]
 from = "/invest"
-to = "/support.html#invest"
+to = "/pages/support.html#invest"
 status = 301.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/@*"
+to = "/pages/profile.html?u=:splat"
+status = 200.0
 force = false
 
 [redirects.query]

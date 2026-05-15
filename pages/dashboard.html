@@ -341,7 +341,30 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
     <div class="view" id="view-credentials"><div class="page-header"><div class="page-title">Credentials</div></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 3 credentials</div></div>
     <div class="view" id="view-projects"><div class="page-header"><div class="page-title">Projects</div></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 2 projects</div></div>
     <div class="view" id="view-jobs"><div class="page-header"><div class="page-title">Job Targets</div><button class="btn btn-primary btn-sm" onclick="showToast('Add job target — paste a JD')">+ Add target</button></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// 3 active targets</div></div>
-    <div class="view" id="view-profile-edit"><div class="page-header"><div class="page-title">Edit Profile</div><button class="btn btn-ghost btn-sm" onclick="window.open('profile.html','_blank')">View live ↗</button></div><div style="font-size:13px;color:var(--text-secondary);font-family:var(--font-mono)">// Handle: @mario-e · Profile visibility: Public</div></div>
+    <div class="view" id="view-profile-edit">
+      <div class="page-header">
+        <div><div class="page-title">Edit Profile</div><div class="page-meta">Personalize your public FOLIO page</div></div>
+        <button class="btn btn-primary" onclick="saveProfile()">Save changes</button>
+      </div>
+      <div class="record-list" style="padding:1.5rem; background:var(--surface); display:flex; flex-direction:column; gap:1.25rem;">
+        <div class="form-group">
+          <label class="nav-label" style="padding:0">Full Name</label>
+          <input class="chat-ta" id="edit-name" style="border:1px solid var(--border-bright); padding:10px; width:100%; border-radius:var(--radius)" placeholder="Your Name">
+        </div>
+        <div class="form-group">
+          <label class="nav-label" style="padding:0">Headline</label>
+          <input class="chat-ta" id="edit-headline" style="border:1px solid var(--border-bright); padding:10px; width:100%; border-radius:var(--radius)" placeholder="e.g. Principal Product Designer">
+        </div>
+        <div class="form-group">
+          <label class="nav-label" style="padding:0">Bio / About</label>
+          <textarea class="chat-ta" id="edit-bio" style="border:1px solid var(--border-bright); padding:10px; width:100%; border-radius:var(--radius); min-height:120px" placeholder="Write a few sentences about yourself..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="nav-label" style="padding:0">Location</label>
+          <input class="chat-ta" id="edit-location" style="border:1px solid var(--border-bright); padding:10px; width:100%; border-radius:var(--radius)" placeholder="e.g. New York, NY">
+        </div>
+      </div>
+    </div>
 
   </main>
 </div>
@@ -350,7 +373,7 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1"></script>
 <script type="module">
 import { getCurrentUser, signOut } from '../lib/auth.js';
-import { getOwnProfile } from '../lib/profiles.js';
+import { getOwnProfile, updateProfile } from '../lib/profiles.js';
 
 let currentUser = null;
 let currentProfile = null;
@@ -393,9 +416,41 @@ function updateUI() {
   const avatars = document.querySelectorAll('.user-avatar');
   const initial = (currentProfile.full_name || 'U').charAt(0).toUpperCase();
   avatars.forEach(a => a.textContent = initial);
+
+  // Pre-populate Edit form
+  document.getElementById('edit-name').value = currentProfile.full_name || '';
+  document.getElementById('edit-headline').value = currentProfile.headline || '';
+  document.getElementById('edit-bio').value = currentProfile.bio || '';
+  document.getElementById('edit-location').value = currentProfile.location || '';
 }
 
 checkSession();
+
+window.saveProfile = async function() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  const updates = {
+    full_name: document.getElementById('edit-name').value,
+    headline: document.getElementById('edit-headline').value,
+    bio: document.getElementById('edit-bio').value,
+    location: document.getElementById('edit-location').value,
+    updated_at: new Date()
+  };
+
+  try {
+    await updateProfile(updates);
+    showToast('✦ Profile updated successfully');
+    currentProfile = { ...currentProfile, ...updates };
+    updateUI();
+  } catch (error) {
+    showToast('Error: ' + error.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save changes';
+  }
+}
 
 window.handleLogout = async function() {
   await signOut();

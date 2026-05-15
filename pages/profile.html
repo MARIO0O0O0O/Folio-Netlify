@@ -459,6 +459,79 @@ function renderProfile(p) {
   }
   
   document.getElementById('contact-btn').textContent = `Contact ${p.full_name?.split(' ')[0] || 'User'}`;
+
+  // ─── DYNAMIC SECTIONS ───
+  const sections = document.getElementById('dynamic-sections');
+  sections.innerHTML = '';
+
+  // 1. Projects (Pinned)
+  if (p.projects && p.projects.length > 0) {
+    sections.innerHTML += `
+      <section class="section fade-in visible">
+        <div class="section-header"><div class="section-title">Pinned Projects</div></div>
+        <div class="pinned-grid">
+          ${p.projects.map(proj => `
+            <div class="pin-card" onclick="window.open('${proj.live_url || '#'}','_blank')">
+              <div class="pin-type"><div class="pin-type-dot" style="background:var(--accent-text)"></div>Project</div>
+              <div class="pin-title">${proj.title}</div>
+              <div class="pin-sub">${proj.description || ''}</div>
+              <div class="pin-skills">
+                ${(proj.tech_stack || []).map(s => `<span class="pin-skill">${s}</span>`).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    `;
+  }
+
+  // 2. Skills
+  if (p.skills && p.skills.length > 0) {
+    const categories = [...new Set(p.skills.map(s => s.category || 'General'))];
+    sections.innerHTML += `
+      <section class="section fade-in visible">
+        <div class="section-header"><div class="section-title">Skills</div></div>
+        <div class="skills-layout">
+          ${categories.map(cat => `
+            <div class="skill-group">
+              <div class="skill-group-label">${cat}</div>
+              <div class="skill-chips">
+                ${p.skills.filter(s => (s.category || 'General') === cat).map(s => `
+                  <span class="skill-chip ${s.proficiency === 'expert' ? 'highlight' : ''}">${s.name}</span>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    `;
+  }
+
+  // 3. Timeline (Experience)
+  if (p.experiences && p.experiences.length > 0) {
+    sections.innerHTML += `
+      <section class="section fade-in visible">
+        <div class="section-header"><div class="section-title">Experience</div></div>
+        <div class="timeline">
+          ${p.experiences.map((exp, idx) => `
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-header">
+                <div class="tl-main">
+                  <div class="tl-title">${exp.role}</div>
+                  <div class="tl-company">${exp.company} ${exp.location ? '· '+exp.location : ''}</div>
+                </div>
+                <div style="text-align:right;flex-shrink:0">
+                  <div class="tl-dates">${new Date(exp.start_date).getFullYear()} → ${exp.is_current ? 'Present' : new Date(exp.end_date).getFullYear()}</div>
+                </div>
+              </div>
+              <div class="readme-block" style="font-size:13px; margin-top:8px">${exp.description || ''}</div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    `;
+  }
 }
 
 loadProfile();
