@@ -340,6 +340,10 @@ body::before {
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       Copy link
     </button>
+    <a id="resume-link" class="btn btn-ghost" href="#" target="_blank" style="display:none">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      PDF
+    </a>
     <button class="btn btn-primary" id="contact-btn">Contact</button>
   </div>
 </nav>
@@ -456,6 +460,13 @@ function renderProfile(p) {
     meta.innerHTML += `<div class="meta-chip">
       <a href="${p.website_url}" target="_blank">Website</a>
     </div>`;
+  }
+
+  // Resume link
+  if (p.resume_url) {
+    const rl = document.getElementById('resume-link');
+    rl.href = p.resume_url;
+    rl.style.display = 'inline-flex';
   }
   
   document.getElementById('contact-btn').textContent = `Contact ${p.full_name?.split(' ')[0] || 'User'}`;

@@ -347,6 +347,25 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
         <button class="btn btn-primary" onclick="saveProfile()">Save changes</button>
       </div>
       <div class="record-list" style="padding:1.5rem; background:var(--surface); display:flex; flex-direction:column; gap:1.25rem;">
+        
+        <!-- Media Row -->
+        <div style="display:grid; grid-template-columns:auto 1fr; gap:1.5rem; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.5rem; margin-bottom:0.5rem;">
+          <div style="position:relative">
+            <div class="user-avatar" id="edit-avatar-preview" style="width:80px; height:80px; font-size:24px; border-radius:var(--radius-lg)">ME</div>
+            <button class="act-btn" style="position:absolute; bottom:-5px; right:-5px; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#000; border:none" onclick="document.getElementById('avatar-input').click()">+</button>
+            <input type="file" id="avatar-input" hidden accept="image/*" onchange="handleAvatarUpload(this)">
+          </div>
+          <div>
+            <div class="nav-label" style="padding:0; margin-bottom:8px">Profile Artifacts</div>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('resume-input').click()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Upload PDF Resume
+            </button>
+            <input type="file" id="resume-input" hidden accept=".pdf" onchange="handleResumeUpload(this)">
+            <div id="resume-status" style="font-size:11px; color:var(--text-muted); margin-top:6px; font-family:var(--font-mono)">// No PDF attached</div>
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="nav-label" style="padding:0">Full Name</label>
           <input class="chat-ta" id="edit-name" style="border:1px solid var(--border-bright); padding:10px; width:100%; border-radius:var(--radius)" placeholder="Your Name">
@@ -374,6 +393,7 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
 <script type="module">
 import { getCurrentUser, signOut } from '../lib/auth.js';
 import { getOwnProfile, updateProfile } from '../lib/profiles.js';
+import { uploadAvatar, uploadResume } from '../lib/media.js';
 
 let currentUser = null;
 let currentProfile = null;
@@ -415,7 +435,30 @@ function updateUI() {
   // Update avatar initial
   const avatars = document.querySelectorAll('.user-avatar');
   const initial = (currentProfile.full_name || 'U').charAt(0).toUpperCase();
-  avatars.forEach(a => a.textContent = initial);
+  avatars.forEach(a => {
+    if (currentProfile.avatar_url) {
+      a.textContent = '';
+      a.style.backgroundImage = `url(${currentProfile.avatar_url})`;
+      a.style.backgroundSize = 'cover';
+    } else {
+      a.textContent = initial;
+      a.style.backgroundImage = 'none';
+    }
+  });
+
+  // Update Edit form previews
+  const preview = document.getElementById('edit-avatar-preview');
+  if (currentProfile.avatar_url) {
+    preview.textContent = '';
+    preview.style.backgroundImage = `url(${currentProfile.avatar_url})`;
+    preview.style.backgroundSize = 'cover';
+  }
+
+  const resumeStatus = document.getElementById('resume-status');
+  if (currentProfile.resume_url) {
+    resumeStatus.textContent = '✓ PDF attached';
+    resumeStatus.style.color = 'var(--accent-text)';
+  }
 
   // Pre-populate Edit form
   document.getElementById('edit-name').value = currentProfile.full_name || '';
@@ -425,6 +468,33 @@ function updateUI() {
 }
 
 checkSession();
+
+window.handleAvatarUpload = async function(input) {
+  if (!input.files || !input.files[0]) return;
+  showToast('Uploading avatar...');
+  try {
+    const url = await uploadAvatar(input.files[0]);
+    currentProfile.avatar_url = url;
+    updateUI();
+    showToast('✦ Avatar updated');
+  } catch (error) {
+    showToast('Upload failed: ' + error.message);
+  }
+}
+
+window.handleResumeUpload = async function(input) {
+  if (!input.files || !input.files[0]) return;
+  showToast('Uploading resume...');
+  try {
+    const url = await uploadResume(input.files[0]);
+    await updateProfile({ resume_url: url });
+    currentProfile.resume_url = url;
+    updateUI();
+    showToast('✦ Resume uploaded');
+  } catch (error) {
+    showToast('Upload failed: ' + error.message);
+  }
+}
 
 window.saveProfile = async function() {
   const btn = event.target;
