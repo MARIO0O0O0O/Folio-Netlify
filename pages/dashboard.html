@@ -144,7 +144,7 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
 
 <!-- BETA RIBBON -->
 <div class="beta-ribbon" id="ribbon">
-  ⚡ <strong>FOLIO Beta v0.1</strong> — You're one of the first. <a href="index.html#contact">Send feedback to Mario →</a>
+  ⚡ <strong>FOLIO Beta v0.1</strong> — You're one of the first. <a href="../index.html#contact">Send feedback to Mario →</a>
   &nbsp;·&nbsp; Data may reset between major versions. Export your vault anytime.
   <span class="ribbon-dismiss" onclick="document.getElementById('ribbon').style.display='none';document.querySelector('.app-shell').style.paddingTop='0'">×</span>
 </div>
@@ -154,7 +154,7 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-left">
-      <a class="logo" href="index.html">
+      <a class="logo" href="../index.html">
         <div class="logo-mark">F</div>
         folio
       </a>
@@ -174,7 +174,7 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
       <button class="icon-btn" onclick="showToast('No new messages')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       </button>
-      <div class="user-chip" onclick="showToast('Profile menu — Settings, Sign out')">
+      <div class="user-chip" onclick="handleLogout()">
         <div class="user-avatar">ME</div>
         <span class="user-handle">@mario-e</span>
       </div>
@@ -347,38 +347,35 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
 </div>
 <div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = "https://djyvigazxpbepifwslyt.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_OQCOL2jm5ECVfuxnPVB-ew_foytvX9P";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1"></script>
+<script type="module">
+import { getCurrentUser, signOut } from '../lib/auth.js';
+import { getOwnProfile } from '../lib/profiles.js';
 
 let currentUser = null;
 let currentProfile = null;
 
 // Check for existing session
 async function checkSession() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
+  const user = await getCurrentUser();
+  if (!user) {
     window.location.href = 'auth.html';
     return;
   }
-  currentUser = session.user;
+  currentUser = user;
 
-  // Fetch profile
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', currentUser.id)
-    .single();
-
-  if (error || !profile) {
+  try {
+    const profile = await getOwnProfile();
+    if (!profile) {
+      window.location.href = 'auth.html';
+      return;
+    }
+    currentProfile = profile;
+    updateUI();
+  } catch (error) {
+    console.error(error);
     window.location.href = 'auth.html';
-    return;
   }
-
-  currentProfile = profile;
-  updateUI();
 }
 
 function updateUI() {
@@ -386,7 +383,7 @@ function updateUI() {
 
   // Update handle in UI
   const handles = document.querySelectorAll('.user-handle');
-  handles.forEach(h => h.textContent = '@' + currentProfile.handle);
+  handles.forEach(h => h.textContent = '@' + currentProfile.username);
 
   // Update name
   const names = document.querySelectorAll('.user-name');
@@ -400,14 +397,13 @@ function updateUI() {
 
 checkSession();
 
-async function handleLogout() {
-  await supabase.auth.signOut();
-  window.location.href = 'index.html';
+window.handleLogout = async function() {
+  await signOut();
+  window.location.href = '../index.html';
 }
 
 /* VIEW ROUTER */
-function switchView(id,el){
-...
+window.switchView = function(id,el){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   const target=document.getElementById('view-'+id);
   if(target)target.classList.add('active');
@@ -416,7 +412,7 @@ function switchView(id,el){
 }
 
 /* TABS */
-function setTab(el){
+window.setTab = function(el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   showToast('Loading '+el.textContent.trim().replace(/\d+/,'').trim()+'...');
@@ -431,7 +427,7 @@ const chatResponses={
   'What is my vault score?':"Your vault health is 74/100. Top action: add 3 more skills to reach 80%."
 };
 
-function sendChat(text){
+window.sendChat = function(text){
   document.getElementById('chat-chips').style.display='none';
   addMsg('user',text);
   showTyping();
@@ -441,7 +437,7 @@ function sendChat(text){
   },900+Math.random()*600);
 }
 
-function sendChatFromInput(){
+window.sendChatFromInput = function(){
   const ta=document.getElementById('chat-ta');
   const text=ta.value.trim();
   if(!text)return;
@@ -449,8 +445,8 @@ function sendChatFromInput(){
   sendChat(text);
 }
 
-function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatFromInput();}}
-function autoResize(el){el.style.height='20px';el.style.height=Math.min(el.scrollHeight,110)+'px';}
+window.chatKey = function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatFromInput();}}
+window.autoResize = function(el){el.style.height='20px';el.style.height=Math.min(el.scrollHeight,110)+'px';}
 
 let typingEl=null;
 function showTyping(){
@@ -472,7 +468,7 @@ function addMsg(role,text){
 
 /* TOAST */
 let toastTimer;
-function showToast(msg){
+window.showToast = function(msg){
   document.getElementById('toast-msg').textContent=msg;
   document.getElementById('toast').classList.add('show');
   clearTimeout(toastTimer);

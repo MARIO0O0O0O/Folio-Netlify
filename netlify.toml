@@ -1,26 +1,26 @@
 [[redirects]]
   from = "/app"
-  to = "/dashboard.html"
+  to = "/pages/dashboard.html"
   status = 200
 
 [[redirects]]
   from = "/app/*"
-  to = "/dashboard.html"
+  to = "/pages/dashboard.html"
   status = 200
 
 [[redirects]]
   from = "/login"
-  to = "/auth.html"
+  to = "/pages/auth.html"
   status = 301
 
 [[redirects]]
   from = "/signup"
-  to = "/auth.html"
+  to = "/pages/auth.html"
   status = 301
 
 [[redirects]]
   from = "/register"
-  to = "/auth.html"
+  to = "/pages/auth.html"
   status = 301
 
 [[redirects]]
@@ -30,13 +30,18 @@
 
 [[redirects]]
   from = "/donate"
-  to = "/support.html"
+  to = "/pages/support.html"
   status = 301
 
 [[redirects]]
   from = "/invest"
-  to = "/support.html#invest"
+  to = "/pages/support.html#invest"
   status = 301
+
+[[redirects]]
+  from = "/@*"
+  to = "/pages/profile.html?u=:splat"
+  status = 200
 
 [[headers]]
   for = "/*"

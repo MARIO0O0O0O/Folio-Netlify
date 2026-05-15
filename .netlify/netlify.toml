@@ -14,6 +14,8 @@ publish = "/data/data/com.termux/files/home/folio-deploy"
 publishOrigin = "config"
 
 [build.environment]
+SUPABASE_URL = "https://djyvigazxpbepifwslyt.supabase.co"
+SUPABASE_ANON_KEY = "sb_publishable_OQCOL2jm5ECVfuxnPVB-ew_foytvX9P"
 
 [build.processing]
 

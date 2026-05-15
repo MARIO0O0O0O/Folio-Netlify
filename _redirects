@@ -1,7 +1,9 @@
-/login    /auth.html    301
-/signup   /auth.html    301
-/register /auth.html    301
-/admin    /admin.html   200
-/donate   /support.html 301
-/invest   /support.html 301
-/app/*    /dashboard.html 200
+/login    /pages/auth.html    301
+/signup   /pages/auth.html    301
+/register /pages/auth.html    301
+/donate   /pages/support.html 301
+/invest   /pages/support.html 301
+/app/*    /pages/dashboard.html 200
+
+# Dynamic Profile Routing
+/@*       /pages/profile.html?u=:splat  200

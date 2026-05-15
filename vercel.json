@@ -1,23 +1,11 @@
 {
-  "version": 2,
-  "routes": [
-    { "src": "/login", "dest": "/auth.html", "status": 301 },
-    { "src": "/signup", "dest": "/auth.html", "status": 301 },
-    { "src": "/register", "dest": "/auth.html", "status": 301 },
-    { "src": "/admin", "dest": "/admin.html", "status": 200 },
-    { "src": "/donate", "dest": "/support.html", "status": 301 },
-    { "src": "/invest", "dest": "/support.html", "status": 301 },
-    { "src": "/app/(.*)", "dest": "/dashboard.html" },
-    { "src": "/(.*)", "dest": "/$1" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
-    }
+  "rewrites": [
+    { "source": "/login", "destination": "/pages/auth.html" },
+    { "source": "/signup", "destination": "/pages/auth.html" },
+    { "source": "/register", "destination": "/pages/auth.html" },
+    { "source": "/donate", "destination": "/pages/support.html" },
+    { "source": "/invest", "destination": "/pages/support.html" },
+    { "source": "/app/(.*)", "destination": "/pages/dashboard.html" },
+    { "source": "/@(?<username>.*)", "destination": "/pages/profile.html?u=:username" }
   ]
 }
