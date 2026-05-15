@@ -376,15 +376,33 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://djyvigazxpbepifwslyt.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_OQCOL2jm5ECVfuxnPVB-ew_foytvX9P";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const VALID_CODES=['FOLIO-BETA','FOLIO-2025','FOLIO-TEST','MARIO-TEST','EARLY-ACCESS','LAUNCH-2025','BUILDER-1','BUILDER-2'];
-const TAKEN_HANDLES=new Set(['admin','api','support','discover','mario','sarah','john','jane','user','folio','help','me','about']);
 let currentMode='signup';
 let currentStep=0;
 let inviteVerified=false;
 let pendingHandle='';
 let inviteCheckTimer;
 let handleCheckTimer;
+let currentUser = null;
+
+// Check for existing session
+async function checkSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    // Check if user has a handle already
+    const { data: profile } = await supabase.from('profiles').select('handle').eq('id', currentUser.id).single();
+    if (profile) window.location.href = 'dashboard.html';
+    else goToStep(2); // If auth'd but no handle, claim one
+  }
+}
+checkSession();
 
 /* MODE TOGGLE */
 function toggleMode(){
@@ -399,6 +417,7 @@ function goToStep(n){
   document.querySelectorAll('.form-step').forEach((s,i)=>{s.classList.toggle('active',i===n);});
   for(let i=0;i<3;i++){
     const d=document.getElementById('sd-'+i);
+    if(!d) continue;
     d.classList.remove('active','done');
     if(i===n)d.classList.add('active');
     else if(i<n)d.classList.add('done');
@@ -432,22 +451,31 @@ function validateInvite(){
 }
 
 /* OAUTH */
-function handleOAuth(p){
-  showToast(`${p} auth — live in production. Continuing as demo user...`);
-  setTimeout(()=>{
-    if(currentMode==='signup')goToStep(2);
-    else goToDashboard();
-  },1200);
+async function handleOAuth(provider){
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: provider.toLowerCase(),
+    options: {
+      redirectTo: window.location.origin + '/auth.html'
+    }
+  });
+  if (error) showToast(error.message);
 }
 
 /* PHONE */
 function showPhoneStep(){document.getElementById('phone-step').style.display='block';document.getElementById('email-fields').style.display='none';}
 function hidePhoneStep(){document.getElementById('phone-step').style.display='none';document.getElementById('email-fields').style.display='block';}
 function formatPhone(el){let v=el.value.replace(/\D/g,'');if(v.length>6)v=v.slice(0,3)+') '+v.slice(3,6)+'-'+v.slice(6,10);else if(v.length>3)v=v.slice(0,3)+') '+v.slice(3);if(el.value.length>1)el.value='('+v;}
-function sendPhoneCode(){setLoading('signup-btn',true);setTimeout(()=>{setLoading('signup-btn',false);showToast('SMS code sent — OTP flow live in production');goToStep(2);},1200);}
+async function sendPhoneCode(){
+  const phone = '+1' + document.getElementById('phone-input').value.replace(/\D/g,'');
+  setLoading('signup-btn',true);
+  const { error } = await supabase.auth.signInWithOtp({ phone });
+  setLoading('signup-btn',false);
+  if (error) showToast(error.message);
+  else showToast('OTP code sent!');
+}
 
-/* STEP 1 EMAIL */
-function submitStep1(){
+/* STEP 1 EMAIL (SIGNUP) */
+async function submitStep1(){
   const name=document.getElementById('f-name').value.trim();
   const email=document.getElementById('f-email').value.trim();
   const pw=document.getElementById('f-pw').value;
@@ -457,19 +485,30 @@ function submitStep1(){
   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('f-email','err-email');ok=false;}
   if(pw.length<8){showErr('f-pw','err-pw');ok=false;}
   if(!ok)return;
+  
   setLoading('signup-btn',true);
-  setTimeout(()=>{
-    setLoading('signup-btn',false);
-    const base=name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,20);
-    populateSuggestions(base);
-    document.getElementById('f-handle').value='@'+base;
-    checkHandle('@'+base);
-    goToStep(2);
-  },1100);
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: pw,
+    options: { data: { full_name: name } }
+  });
+  setLoading('signup-btn',false);
+
+  if (error) {
+    showToast(error.message);
+    return;
+  }
+  
+  currentUser = data.user;
+  const base=name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,20);
+  populateSuggestions(base);
+  document.getElementById('f-handle').value='@'+base;
+  checkHandle('@'+base);
+  goToStep(2);
 }
 
 /* STEP 2 HANDLE */
-function checkHandle(raw){
+async function checkHandle(raw){
   const handle=raw.replace(/^@+/,'').toLowerCase().replace(/[^a-z0-9-]/g,'').replace(/-+/g,'-').replace(/^-|-$/g,'');
   const input=document.getElementById('f-handle');
   if(handle)input.value='@'+handle;
@@ -480,10 +519,14 @@ function checkHandle(raw){
   clearTimeout(handleCheckTimer);
   if(handle.length<3){status.style.color='var(--red)';status.textContent=handle.length>0?'Min 3 characters':'';btn.disabled=true;return;}
   status.style.color='var(--text-muted)';status.textContent='Checking...';btn.disabled=true;
-  handleCheckTimer=setTimeout(()=>{
-    pendingHandle=handle;
-    if(TAKEN_HANDLES.has(handle)){status.style.color='var(--red)';status.textContent=`@${handle} is taken`;btn.disabled=true;}
-    else{status.style.color='var(--accent-text)';status.textContent=`@${handle} is available ✦`;btn.disabled=false;}
+  
+  handleCheckTimer=setTimeout(async ()=>{
+    const { data, error } = await supabase.from('profiles').select('handle').eq('handle', handle).maybeSingle();
+    if(data){status.style.color='var(--red)';status.textContent=`@${handle} is taken`;btn.disabled=true;}
+    else{
+      pendingHandle=handle;
+      status.style.color='var(--accent-text)';status.textContent=`@${handle} is available ✦`;btn.disabled=false;
+    }
   },500);
 }
 
@@ -494,31 +537,51 @@ function populateSuggestions(base){
 
 function selectHandle(h){document.getElementById('f-handle').value='@'+h;checkHandle('@'+h);}
 
-function claimHandle(){
-  if(!pendingHandle)return;
+async function claimHandle(){
+  if(!pendingHandle || !currentUser) return;
   setLoading('handle-btn',true);
-  setTimeout(()=>{
-    TAKEN_HANDLES.add(pendingHandle);
-    document.getElementById('success-handle').textContent='@'+pendingHandle;
-    document.getElementById('auth-main').style.display='none';
-    document.getElementById('auth-success').classList.add('show');
-  },1100);
+  
+  const { error } = await supabase.from('profiles').insert({
+    id: currentUser.id,
+    handle: pendingHandle,
+    full_name: currentUser.user_metadata?.full_name || ''
+  });
+  
+  setLoading('handle-btn',false);
+  if (error) {
+    showToast(error.message);
+    return;
+  }
+
+  document.getElementById('success-handle').textContent='@'+pendingHandle;
+  document.getElementById('auth-main').style.display='none';
+  document.getElementById('auth-success').classList.add('show');
 }
 
 /* LOGIN */
-function submitLogin(){
+async function submitLogin(){
   const email=document.getElementById('l-email').value.trim();
   const pw=document.getElementById('l-pw').value;
   if(!email||pw.length<1){showToast('Please enter your email and password');return;}
+  
   const btn=document.querySelector('#login-form .submit-btn');
   btn.disabled=true;btn.classList.add('loading');
-  setTimeout(()=>{btn.disabled=false;btn.classList.remove('loading');goToDashboard();},1200);
+  
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pw });
+  
+  btn.disabled=false;btn.classList.remove('loading');
+  
+  if (error) {
+    showToast(error.message);
+    return;
+  }
+  
+  currentUser = data.user;
+  goToDashboard();
 }
 
 function goToDashboard(){
-  const btn=document.getElementById('auth-success')?.querySelector('.submit-btn');
-  if(btn){btn.disabled=true;btn.classList.add('loading');}
-  setTimeout(()=>window.location.href='dashboard.html',1000);
+  window.location.href='dashboard.html';
 }
 
 /* UTILITIES */
@@ -532,12 +595,22 @@ function showToast(msg){document.getElementById('toast-msg').textContent=msg;doc
 /* ENTER KEY */
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA'){
-    if(currentStep===0)validateInvite();
-    else if(currentStep===1)submitStep1();
-    else if(currentStep===2)claimHandle();
-    else if(currentMode==='login')submitLogin();
+    if(document.getElementById('auth-success').classList.contains('show')) {
+      goToDashboard();
+    } else if(currentMode==='signup') {
+      if(currentStep===0)validateInvite();
+      else if(currentStep===1)submitStep1();
+      else if(currentStep===2)claimHandle();
+    } else if(currentMode==='login') {
+      submitLogin();
+    }
   }
 });
+
+/* URL param: ?mode=login */
+const params=new URLSearchParams(window.location.search);
+if(params.get('mode')==='login')toggleMode();
+</script>
 
 /* URL param: ?mode=login */
 const params=new URLSearchParams(window.location.search);

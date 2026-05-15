@@ -1,0 +1,21 @@
+{
+  "name": "folio-deploy",
+  "version": "1.0.0",
+  "description": "> Built by Mario A. Espindola, MPA, IPMA-CP   > Version: 0.1.0-beta   > License: AGPL-3.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MARIO0O0O0O/Folio-Netlify.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MARIO0O0O0O/Folio-Netlify/issues"
+  },
+  "homepage": "https://github.com/MARIO0O0O0O/Folio-Netlify#readme"
+}

@@ -345,12 +345,69 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
 
   </main>
 </div>
-
 <div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://djyvigazxpbepifwslyt.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_OQCOL2jm5ECVfuxnPVB-ew_foytvX9P";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentProfile = null;
+
+// Check for existing session
+async function checkSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = 'auth.html';
+    return;
+  }
+  currentUser = session.user;
+
+  // Fetch profile
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', currentUser.id)
+    .single();
+
+  if (error || !profile) {
+    window.location.href = 'auth.html';
+    return;
+  }
+
+  currentProfile = profile;
+  updateUI();
+}
+
+function updateUI() {
+  if (!currentProfile) return;
+
+  // Update handle in UI
+  const handles = document.querySelectorAll('.user-handle');
+  handles.forEach(h => h.textContent = '@' + currentProfile.handle);
+
+  // Update name
+  const names = document.querySelectorAll('.user-name');
+  names.forEach(n => n.textContent = currentProfile.full_name || 'User');
+
+  // Update avatar initial
+  const avatars = document.querySelectorAll('.user-avatar');
+  const initial = (currentProfile.full_name || 'U').charAt(0).toUpperCase();
+  avatars.forEach(a => a.textContent = initial);
+}
+
+checkSession();
+
+async function handleLogout() {
+  await supabase.auth.signOut();
+  window.location.href = 'index.html';
+}
+
 /* VIEW ROUTER */
 function switchView(id,el){
+...
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   const target=document.getElementById('view-'+id);
   if(target)target.classList.add('active');
