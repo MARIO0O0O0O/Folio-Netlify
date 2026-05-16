@@ -158,6 +158,16 @@ body::before { content: ''; position: fixed; inset: 0; background-image: url("da
   </section>
 
   <section class="section"><div class="section-header"><div class="section-title">About</div></div><div class="readme-block" id="p-bio"></div></section>
+
+  <!-- THE JOURNEY -->
+  <section class="section" id="p-journey-wrap" style="display:none">
+    <div class="section-header"><div class="section-title">Resolve & Resilience</div></div>
+    <div class="record-list" style="padding:2rem; background:var(--surface); border-color:var(--border-bright);">
+      <h2 id="p-story-title" style="font-family:var(--font-display); font-size:1.6rem; font-weight:400; color:var(--accent-text); margin-bottom:1rem;">The Journey</h2>
+      <div class="readme-block" id="p-story-content" style="font-size:14px; color:var(--text-primary)"></div>
+    </div>
+  </section>
+
   <div id="dynamic-sections"></div>
   <div class="profile-footer"><div class="footer-left">Powered by <a href="../index.html">FOLIO</a></div></div>
 </div>
@@ -227,6 +237,17 @@ function renderProfile(p) {
   document.getElementById('contact-name-span').textContent = p.full_name?.split(' ')[0] || p.username;
   document.getElementById('p-headline').textContent = p.headline || 'FOLIO Member';
   document.getElementById('p-bio').innerHTML = p.bio ? `<p>${p.bio.replace(/\n/g, '</p><p>')}</p>` : '<p>No bio shared yet.</p>';
+
+  // Render The Journey
+  const journeySection = document.getElementById('p-journey-wrap');
+  if (p.story_content) {
+    document.getElementById('p-story-title').textContent = p.story_title || 'The Journey';
+    document.getElementById('p-story-content').innerHTML = `<p>${p.story_content.replace(/\n/g, '</p><p>')}</p>`;
+    journeySection.style.display = 'block';
+  } else {
+    journeySection.style.display = 'none';
+  }
+
   if (p.avatar_url) { document.getElementById('p-avatar').style.backgroundImage = `url(${p.avatar_url})`; document.getElementById('p-initial').style.display = 'none'; }
   else { document.getElementById('p-initial').textContent = (p.full_name || p.username).charAt(0).toUpperCase(); }
   if (p.resume_url) { const rl = document.getElementById('resume-link'); rl.href = p.resume_url; rl.style.display = 'inline-flex'; }
@@ -242,7 +263,18 @@ function renderProfile(p) {
   sections.innerHTML = '';
 
   if (p.projects?.length) {
-    sections.innerHTML += `<section class="section"><div class="section-header"><div class="section-title">Projects</div></div><div class="pinned-grid">${p.projects.map(proj => `<div class="pin-card" onclick="window.open('${proj.live_url || '#'}','_blank')"><div class="pin-title">${proj.title}</div><div class="pin-sub">${proj.description || ''}</div></div>`).join('')}</div></section>`;
+    sections.innerHTML += `<section class="section"><div class="section-header"><div class="section-title">Projects</div></div><div class="pinned-grid">${p.projects.map(proj => `
+      <div class="pin-card" onclick="window.open('${proj.live_url || proj.repo_url || '#'}','_blank')">
+        <div class="pin-title">${proj.title} ${proj.live_url ? '<span style="color:var(--accent-text); font-size:10px; margin-left:4px">✦ Proof</span>' : ''}</div>
+        <div class="pin-sub">${proj.description || ''}</div>
+      </div>`).join('')}</div></section>`;
+  }
+
+  if (p.skills?.length) {
+    sections.innerHTML += `<section class="section"><div class="section-header"><div class="section-title">Skills</div></div><div class="skill-chips">${p.skills.map(s => `
+      <span class="skill-chip ${s.proficiency === 'expert' ? 'highlight' : ''}" ${s.artifact_url ? `onclick="window.open('${s.artifact_url}','_blank')" style="cursor:pointer"` : ''}>
+        ${s.name} ${s.artifact_url ? '✦' : ''}
+      </span>`).join('')}</div></section>`;
   }
 
   if (p.experiences?.length) {

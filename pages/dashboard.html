@@ -211,6 +211,10 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         Projects <span class="nav-count">2</span>
       </div>
+      <div class="nav-item" onclick="switchView('journey',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        The Journey
+      </div>
     </div>
 
     <div class="sidebar-div"></div>
@@ -240,6 +244,10 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
       <div class="nav-item" onclick="switchView('compass',this)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Market Compass
+      </div>
+      <div class="nav-item" onclick="switchView('bridge',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 17a1 1 0 0 1 2 0c0 .5-.34 3-.5 4.5a.5.5 0 0 1-1 0c-.16-1.5-.5-4-.5-4.5z"/><path d="M8 14a5 5 0 1 1 8 0"/><path d="M17 18.5a9 9 0 1 0-10 0"/></svg>
+        Skill Bridge
       </div>
       <div class="nav-item" onclick="showToast('Generating PDF snapshot...')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -322,6 +330,27 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add work experience
       </button>
+    </div>
+
+    <div class="view" id="view-journey">
+      <div class="page-header">
+        <div><div class="page-title">The Journey</div><div class="page-meta">Tell your story of resilience and resolve</div></div>
+        <button class="btn btn-primary" onclick="saveJourney()">Save story</button>
+      </div>
+      <div class="record-list" style="padding:1.5rem; background:var(--surface); display:flex; flex-direction:column; gap:1.5rem;">
+        <div class="form-group">
+          <label class="nav-label" style="padding:0">Story Title</label>
+          <input class="form-input" id="edit-story-title" placeholder="e.g. Overcoming the Impossible, Military Transition, etc.">
+        </div>
+        <div class="form-group">
+          <label class="nav-label" style="padding:0">The Narrative</label>
+          <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
+            This is where you turn 'resume gaps' into 'resolve assets'. Share a challenge you overcame, 
+            how you managed a family, or your experience returning from service. Recruiters value grit.
+          </p>
+          <textarea class="form-textarea" id="edit-story-content" style="min-height:200px" placeholder="Write your story here..."></textarea>
+        </div>
+      </div>
     </div>
 
     <!-- CHAT -->
@@ -476,6 +505,27 @@ body{font-family:var(--font-ui);background:var(--paper);color:var(--text-primary
       </div>
     </div>
 
+    <div class="view" id="view-bridge">
+      <div class="page-header">
+        <div><div class="page-title">Skill Bridge</div><div class="page-meta">Translate your life experience into professional assets</div></div>
+      </div>
+      <div class="record-list" style="padding:1.5rem; background:var(--surface); display:flex; flex-direction:column; gap:1.5rem;">
+        <div class="form-group">
+          <label class="nav-label" style="padding:0">My Background</label>
+          <select id="bridge-type" class="form-input" onchange="runBridge()">
+            <option value="">Select background...</option>
+            <option value="military">Military Service</option>
+            <option value="parent">Stay-at-Home Parent</option>
+            <option value="caregiver">Caregiver</option>
+            <option value="athlete">Student Athlete</option>
+          </select>
+        </div>
+        <div id="bridge-results" style="display:flex; flex-direction:column; gap:1.25rem;">
+          <div style="font-size:12px; color:var(--text-muted)">Select your background to see how your resolve translates to modern roles.</div>
+        </div>
+      </div>
+    </div>
+
     <div class="view" id="view-availability">
       <div class="page-header">
         <div><div class="page-title">Availability</div><div class="page-meta">Control your schedule</div></div>
@@ -587,6 +637,70 @@ window.runGapAnalysis = async function() {
       ${res.resources.map(r => `<a href="${r.url}" target="_blank" style="color:var(--accent-text); text-decoration:none">${r.title} →</a>`).join('<br>')}
     </div>
   `;
+}
+
+const bridgeData = {
+  military: {
+    title: "Operational Leadership & Resilience",
+    skills: ["High-Stakes Decision Making", "Operational Logistics", "Extreme Ownership", "Team Leadership"],
+    mapping: "Your military background translates to high-value roles in <strong>Project Management, Security Operations, or DevOps</strong>.",
+    advice: "Focus on highlighting your ability to maintain systems under pressure and lead diverse teams."
+  },
+  parent: {
+    title: "Household Operations & Resource Management",
+    skills: ["Conflict Resolution", "Multi-Project Coordination", "Emotional Intelligence", "Budgeting & Logistics"],
+    mapping: "Your experience managing a family translates to <strong>Operations, Human Resources, or Customer Success</strong>.",
+    advice: "Highlight your ability to prioritize conflicting demands and resolve interpersonal friction."
+  },
+  caregiver: {
+    title: "Patient Advocacy & Empathy-Driven Problem Solving",
+    skills: ["Crisis Management", "Empathy & Advocacy", "Detail-Oriented Reporting", "Patience & Adaptability"],
+    mapping: "Your caregiving experience is highly relevant for <strong>HealthTech, Patient Success, or User Research</strong>.",
+    advice: "Showcase your ability to navigate complex systems while maintaining human-centered focus."
+  },
+  athlete: {
+    title: "Peak Performance & Discipline",
+    skills: ["Competitive Drive", "Time Management", "Grit & Consistency", "Collaborative Strategy"],
+    mapping: "Your athletic background translates to <strong>Sales, Business Development, or Team Management</strong>.",
+    advice: "Focus on your 'Speed-to-Value' and your ability to coach others toward a shared goal."
+  }
+};
+
+window.runBridge = function() {
+  const type = document.getElementById('bridge-type').value;
+  const div = document.getElementById('bridge-results');
+  const data = bridgeData[type];
+  
+  if (!data) {
+    div.innerHTML = '<div style="font-size:12px; color:var(--text-muted)">Select your background to see how your resolve translates to modern roles.</div>';
+    return;
+  }
+
+  div.innerHTML = `
+    <div style="background:var(--accent-dim); padding:1rem; border-radius:var(--radius-lg); border-left:4px solid var(--accent)">
+      <div style="font-size:14px; font-weight:700; color:var(--accent-text); margin-bottom:0.5rem;">${data.title}</div>
+      <p style="font-size:13px; margin-bottom:1rem;">${data.mapping}</p>
+      <div class="skill-chips" style="margin-bottom:1rem;">
+        ${data.skills.map(s => `<span class="skill-chip highlight">${s}</span>`).join('')}
+      </div>
+      <div style="font-size:11px; color:var(--text-secondary); border-top:1px solid var(--border); padding-top:0.75rem;">
+        <strong>Strategic Advice:</strong> ${data.advice}
+      </div>
+      <button class="btn btn-primary btn-sm" style="margin-top:1rem; width:100%" onclick="addBridgeSkills('${type}')">Add these skills to my vault</button>
+    </div>
+  `;
+}
+
+window.addBridgeSkills = async function(type) {
+  const data = bridgeData[type];
+  showToast('Adding bridge skills to your vault...');
+  try {
+    for (const skill of data.skills) {
+      await addSkill(skill, 'Power Skills', 'expert');
+    }
+    showToast('✦ Vault updated with bridge skills');
+    fetchCompassData(); // Refresh analytics
+  } catch (e) { showToast('Error: ' + e.message); }
 }
 
 async function fetchMessages() {
@@ -706,9 +820,29 @@ function updateUI() {
     document.getElementById('avail-mentoring').checked = currentProfile.meeting_types.includes('mentoring');
   }
   document.getElementById('edit-calendar-link').value = currentProfile.website_url || '';
+
+  // Pre-populate Journey
+  document.getElementById('edit-story-title').value = currentProfile.story_title || '';
+  document.getElementById('edit-story-content').value = currentProfile.story_content || '';
 }
 
 checkSession();
+
+window.saveJourney = async function() {
+  const btn = event.target;
+  btn.disabled = true;
+  const updates = {
+    story_title: document.getElementById('edit-story-title').value,
+    story_content: document.getElementById('edit-story-content').value,
+    updated_at: new Date()
+  };
+  try {
+    await updateProfile(updates);
+    showToast('✦ Journey updated');
+    currentProfile = { ...currentProfile, ...updates };
+  } catch (e) { showToast('Error: ' + e.message); }
+  finally { btn.disabled = false; }
+}
 
 window.downloadQR = function() {
   const canvas = document.getElementById('qr-code');
