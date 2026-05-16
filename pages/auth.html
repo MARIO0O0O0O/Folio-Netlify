@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FOLIO — Join the Beta</title>
+<title>FOLIO — Beta Access</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +28,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
 .switch-mode{text-align:center;margin-top:1.5rem;font-size:13px;color:var(--text-secondary);}
 .switch-mode span{color:var(--accent-text);cursor:pointer;font-weight:600;}
-.error-msg{color:var(--red);font-size:12px;margin-top:1rem;text-align:center;display:none;}
+.error-msg{color:var(--red);font-size:12px;margin-top:1rem;text-align:center;display:none;font-family:var(--font-mono);}
 .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-3);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:10px 20px;font-size:12px;font-family:var(--font-mono);color:var(--text-primary);z-index:9999;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 </style>
@@ -41,13 +41,18 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <span class="logo-text">folio</span>
   </a>
 
+  <!-- SIGNUP VIEW -->
   <div id="signup-view">
     <h1 class="heading">Claim your handle.</h1>
-    <p class="subheading">Join the beta and build your live professional profile in 60 seconds.</p>
+    <p class="subheading">Beta access is currently restricted to invited stakeholders.</p>
     
     <div class="form-group">
+      <label class="label">Invite Code</label>
+      <input type="text" id="s-invite" class="input" style="color:var(--accent-text); font-family:var(--font-mono); text-align:center; letter-spacing:0.1em;" placeholder="STAKEHOLDER-XXXX">
+    </div>
+    <div class="form-group">
       <label class="label">Full Name</label>
-      <input type="text" id="s-name" class="input" placeholder="Enter your name">
+      <input type="text" id="s-name" class="input" placeholder="Your Name">
     </div>
     <div class="form-group">
       <label class="label">Email Address</label>
@@ -55,40 +60,35 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
     <div class="form-group">
       <label class="label">Password</label>
-      <input type="password" id="s-pw" class="input" placeholder="Minimum 8 characters">
+      <input type="password" id="s-pw" class="input" placeholder="Min 8 characters">
     </div>
-
-    <button class="submit-btn" id="signup-btn" onclick="handleSignUp()">Create account & claim handle →</button>
-    
-    <div class="switch-mode">Already have an account? <span onclick="toggleMode()">Sign in</span></div>
+    <button class="submit-btn" id="signup-btn" onclick="handleSignUp()">Create vault →</button>
+    <div class="switch-mode">Already have an account? <span onclick="setMode('login')">Sign in</span></div>
   </div>
 
+  <!-- LOGIN VIEW -->
   <div id="login-view" style="display:none">
     <h1 class="heading">Welcome back.</h1>
     <p class="subheading">Access your career vault.</p>
-
     <div class="form-group">
       <label class="label">Email Address</label>
       <input type="email" id="l-email" class="input" placeholder="you@example.com">
     </div>
     <div class="form-group">
       <label class="label">Password</label>
-      <input type="password" id="l-pw" class="input" placeholder="Enter your password">
+      <input type="password" id="l-pw" class="input" placeholder="Your password">
     </div>
-
     <div style="text-align:right; margin-bottom:1rem">
       <span onclick="setMode('forgot')" style="font-size:12px; color:var(--accent-text); cursor:pointer">Forgot password?</span>
     </div>
-
     <button class="submit-btn" id="login-btn" onclick="handleSignIn()">Sign in →</button>
-
-    <div class="switch-mode">Don't have an account? <span onclick="toggleMode()">Sign up</span></div>
+    <div class="switch-mode">Don't have an account? <span onclick="setMode('signup')">Sign up</span></div>
   </div>
 
-  <!-- FORGOT PASSWORD -->
+  <!-- FORGOT VIEW -->
   <div id="forgot-view" style="display:none">
     <h1 class="heading">Reset Password</h1>
-    <p class="subheading">Enter your email to receive a recovery link.</p>
+    <p class="subheading">Enter your email for a recovery link.</p>
     <div class="form-group">
       <label class="label">Email Address</label>
       <input type="email" id="f-email" class="input" placeholder="you@example.com">
@@ -97,7 +97,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="switch-mode"><span onclick="setMode('login')">← Back to sign in</span></div>
   </div>
 
-  <!-- UPDATE PASSWORD (from link) -->
+  <!-- RESET VIEW -->
   <div id="reset-view" style="display:none">
     <h1 class="heading">New Password</h1>
     <p class="subheading">Secure your vault with a new password.</p>
@@ -105,87 +105,74 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <label class="label">New Password</label>
       <input type="password" id="r-pw" class="input" placeholder="Min 8 characters">
     </div>
-    <button class="submit-btn" id="reset-btn" onclick="handleResetPassword()">Update password & enter vault →</button>
+    <button class="submit-btn" id="reset-btn" onclick="handleResetPassword()">Update password →</button>
   </div>
 
   <div id="error-box" class="error-msg"></div>
-  </div>
+</div>
 
-  <div class="toast" id="toast"><span id="toast-msg"></span></div>
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1"></script>
-  <script type="module">
-  import { signUp, signIn, getCurrentUser, resetPassword, updatePassword } from '../lib/auth.js';
-  import { checkUsernameAvailable, updateProfile } from '../lib/profiles.js';
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1"></script>
+<script type="module">
+import { signUp, signIn, getCurrentUser, resetPassword, updatePassword } from '../lib/auth.js';
+import { checkUsernameAvailable, updateProfile } from '../lib/profiles.js';
+import { validateCode, useCode } from '../lib/admin.js';
 
-  let currentMode = 'signup';
+let currentMode = 'signup';
 
-  window.setMode = (mode) => {
+window.setMode = (mode) => {
   currentMode = mode;
   document.getElementById('signup-view').style.display = mode === 'signup' ? 'block' : 'none';
   document.getElementById('login-view').style.display = mode === 'login' ? 'block' : 'none';
   document.getElementById('forgot-view').style.display = mode === 'forgot' ? 'block' : 'none';
   document.getElementById('reset-view').style.display = mode === 'reset' ? 'block' : 'none';
   document.getElementById('error-box').style.display = 'none';
-  };
+};
 
-  window.toggleMode = () => {
-  setMode(currentMode === 'signup' ? 'login' : 'signup');
-  };
-
-  window.handleForgotPassword = async () => {
-  const email = document.getElementById('f-email').value.trim();
-  if (!email) return showError('Enter your email.');
-  const btn = document.getElementById('forgot-btn');
-  btn.disabled = true;
-  try {
-    await resetPassword(email);
-    showToast('✦ Recovery link sent! Check your inbox.');
-  } catch (e) { showError(e.message); btn.disabled = false; }
-  };
-
-  window.handleResetPassword = async () => {
-  const pw = document.getElementById('r-pw').value;
-  if (pw.length < 8) return showError('Password too short.');
-  const btn = document.getElementById('reset-btn');
-  btn.disabled = true;
-  try {
-    await updatePassword(pw);
-    showToast('✦ Password updated!');
-    setTimeout(() => window.location.href = 'dashboard.html', 1500);
-  } catch (e) { showError(e.message); btn.disabled = false; }
-  };
 window.handleSignUp = async () => {
   const name = document.getElementById('s-name').value.trim();
   const email = document.getElementById('s-email').value.trim();
   const pw = document.getElementById('s-pw').value;
+  const invite = document.getElementById('s-invite').value.trim();
   const btn = document.getElementById('signup-btn');
 
-  if (!name || !email || pw.length < 8) {
-    showError('Please fill all fields correctly (Password min 8 chars).');
+  if (!name || !email || pw.length < 8 || !invite) {
+    showError('Please fill all fields correctly.');
     return;
   }
 
   btn.disabled = true;
-  btn.textContent = 'Creating vault...';
+  btn.textContent = 'Verifying invite...';
 
   try {
+    const isValid = await validateCode(invite);
+    if (!isValid) throw new Error('Invalid or used invite code.');
+
+    btn.textContent = 'Creating account...';
     const data = await signUp(email, pw, name);
     
-    // If session is null, it means email confirmation is required
     if (!data.session) {
-      showToast('✦ Account created! Please check your email to confirm.');
+      showToast('✦ Account created! Confirm your email to activate.');
       btn.textContent = 'Check your email';
       return;
     }
 
-    showToast('✦ Vault created! Redirecting...');
+    await useCode(invite, data.user.id);
+    
+    let handle = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 20);
+    const available = await checkUsernameAvailable(handle);
+    if (!available) handle += '-' + Math.random().toString(36).substring(2, 5);
+
+    await updateProfile({ username: handle, full_name: name });
+
+    showToast('✦ Vault created!');
     setTimeout(() => window.location.href = 'dashboard.html', 1500);
 
   } catch (error) {
     showError(error.message);
     btn.disabled = false;
-    btn.textContent = 'Create account & claim handle →';
+    btn.textContent = 'Create vault →';
   }
 };
 
@@ -193,23 +180,35 @@ window.handleSignIn = async () => {
   const email = document.getElementById('l-email').value.trim();
   const pw = document.getElementById('l-pw').value;
   const btn = document.getElementById('login-btn');
-
-  if (!email || !pw) {
-    showError('Please enter your credentials.');
-    return;
-  }
-
+  if (!email || !pw) return showError('Enter credentials.');
   btn.disabled = true;
-  btn.textContent = 'Opening vault...';
-
   try {
     await signIn(email, pw);
     window.location.href = 'dashboard.html';
-  } catch (error) {
-    showError(error.message);
-    btn.disabled = false;
-    btn.textContent = 'Sign in →';
-  }
+  } catch (error) { showError(error.message); btn.disabled = false; }
+};
+
+window.handleForgotPassword = async () => {
+  const email = document.getElementById('f-email').value.trim();
+  if (!email) return showError('Enter your email.');
+  const btn = document.getElementById('forgot-btn');
+  btn.disabled = true;
+  try {
+    await resetPassword(email);
+    showToast('✦ Recovery link sent!');
+  } catch (e) { showError(e.message); btn.disabled = false; }
+};
+
+window.handleResetPassword = async () => {
+  const pw = document.getElementById('r-pw').value;
+  if (pw.length < 8) return showError('Min 8 characters.');
+  const btn = document.getElementById('reset-btn');
+  btn.disabled = true;
+  try {
+    await updatePassword(pw);
+    showToast('✦ Password updated!');
+    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+  } catch (e) { showError(e.message); btn.disabled = false; }
 };
 
 function showError(msg) {
@@ -225,16 +224,9 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// Redirect if already logged in or handle reset link
 async function init() {
   const params = new URLSearchParams(window.location.search);
-  const mode = params.get('mode');
-  
-  if (mode === 'reset') {
-    setMode('reset');
-    return;
-  }
-
+  if (params.get('mode') === 'reset') return setMode('reset');
   const user = await getCurrentUser();
   if (user) window.location.href = 'dashboard.html';
 }
