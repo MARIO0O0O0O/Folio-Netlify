@@ -116,19 +116,13 @@ window.handleSignUp = async () => {
 
   try {
     const data = await signUp(email, pw, name);
-    const user = data.user;
     
-    // Auto-generate handle from name
-    let handle = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 20);
-    
-    // Verify if handle is available, if not, add random suffix
-    const isAvailable = await checkUsernameAvailable(handle);
-    if (!isAvailable) {
-      handle += '-' + Math.random().toString(36).substring(2, 5);
+    // If session is null, it means email confirmation is required
+    if (!data.session) {
+      showToast('✦ Account created! Please check your email to confirm.');
+      btn.textContent = 'Check your email';
+      return;
     }
-
-    // Update profile with the auto-handle
-    await updateProfile({ username: handle, full_name: name });
 
     showToast('✦ Vault created! Redirecting...');
     setTimeout(() => window.location.href = 'dashboard.html', 1500);
